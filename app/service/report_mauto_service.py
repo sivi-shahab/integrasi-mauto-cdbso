@@ -38,7 +38,7 @@ class ReportMautoService:
             if nik:
                 query = query.filter(ReportMautoCdsbo.nik == nik)
             if branch_code:
-                query = query.filter(ReportMautoCdsbo.source_code == branch_code)
+                query = query.filter(ReportMautoCdsbo.kode_cabang == branch_code)
             if account_number:
                 query = query.filter(ReportMautoCdsbo.account_number == account_number)
 
