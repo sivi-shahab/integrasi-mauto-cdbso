@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Text
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text
 from app.db.session import Base
 
 class ReportMautoCdsbo(Base):
@@ -181,3 +181,5 @@ class ReportMautoCdsbo(Base):
     updated_by_6 = Column(String(255), nullable=True)
     alfresco_id = Column(String(255), nullable=True)
     selfie = Column(Text, nullable=True)
+    branch_code = Column(Integer, nullable=True)
+    jabatan = Column(String(255), nullable=True)

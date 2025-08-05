@@ -1,15 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.schemas.report_mauto_schema import ReportMautoCdsboResponse
 from app.service.report_mauto_service import ReportMautoService
 from app.core.deps import get_db
-from typing import List
 
 
 router = APIRouter()
 
 @router.get("",
-            response_model=List[ReportMautoCdsboResponse],
             summary="Get Report Mauto CDSBO",
             description="Retrieve report mauto cdsbo data based on apply date, nik, branch code, and account number."
 )
@@ -19,7 +16,7 @@ def get_report_mauto(
     branch_code: str = None,
     account_number: str = None,
     db: Session = Depends(get_db)
-) -> List[ReportMautoCdsboResponse]:
+):
     """
     Get report mauto cdsbo data based on the provided filters.
     

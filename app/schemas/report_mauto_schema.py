@@ -182,6 +182,8 @@ class ReportMautoCdsboBase(BaseModel):
     updated_by_6: Optional[str]
     alfresco_id: Optional[str]
     selfie: Optional[str]
+    branch_code: Optional[int]
+    jabatan:Optional[str]
 
     model_config = ConfigDict(from_attributes=True)
 
