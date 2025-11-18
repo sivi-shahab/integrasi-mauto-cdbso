@@ -45,21 +45,21 @@ class ReportMautoService:
             nik = safe_str(request.nik)
             account_number = safe_str(request.account_number)
             branch_code = safe_str(request.branch_code)
-            cc_ref = safe_str(request.cc_ref)
+            cc_reff = safe_str(request.cc_reff)
 
             # SQL Query pakai bind parameter
             query = text("""
                 SELECT * FROM report_mauto_cdsbo 
                 WHERE DATE(apply_date) = :apply_date
                 AND (:nik IS NULL OR nik = :nik)
-                AND (:cc_ref IS NULL OR cc_ref = :cc_ref)
+                AND (:cc_reff IS NULL OR cc_reff = :cc_reff)
                 AND (:branch_code IS NULL OR branch_code = :branch_code)
                 AND (:account_number IS NULL OR account_number = :account_number)
                 LIMIT :limit OFFSET :offset
             """).bindparams(
                 bindparam("apply_date"),
                 bindparam("nik"),
-                bindparam("cc_ref"),
+                bindparam("cc_reff"),
                 bindparam("branch_code"),
                 bindparam("account_number"),
                 bindparam("limit"),
@@ -70,7 +70,7 @@ class ReportMautoService:
             params = {
                 "apply_date": parsed_date_str,
                 "nik": nik,
-                "cc_ref": cc_ref,
+                "cc_reff": cc_reff,
                 "branch_code": branch_code,
                 "account_number": account_number,
                 "limit": limit,

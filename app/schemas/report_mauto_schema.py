@@ -6,7 +6,7 @@ from typing import Optional, List
 class ReportMautoCdsboRequest(BaseModel):
     apply_date: str
     nik: Optional[str] = None
-    cc_ref: Optional[str] = None
+    cc_reff: Optional[str] = None
     branch_code: Optional[str] = None
     account_number: Optional[str] = None
     limit: int = 10
@@ -14,8 +14,8 @@ class ReportMautoCdsboRequest(BaseModel):
 
     @model_validator(mode='after')
     def check_nik_or_cc_ref(self):
-        if not self.nik and not self.cc_ref:
-            raise ValueError('At least one of nik or cc_ref must be provided')
+        if not self.nik and not self.cc_reff:
+            raise ValueError('At least one of nik or cc_reff must be provided')
         return self
 
 class ReportMautoCdsboBase(BaseModel):
