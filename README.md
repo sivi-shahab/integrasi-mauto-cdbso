@@ -79,18 +79,24 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 #### Get Report Mauto CDSBO
 
 ```
-GET /v1/report-mauto
+POST /v1/report-mauto
 ```
 
-Query Parameters:
+Request Body:
 - `apply_date`: Date in ddmmyyyy format (required)
 - `nik`: NIK filter (optional)
+- `cc_ref`: CC Ref filter (optional)
 - `branch_code`: Branch code filter (optional)
 - `account_number`: Account number filter (optional)
 
+Note : `nik` or `cc_ref` must be provided
+
 Example:
-```
-GET /v1/report-mauto?apply_date=01082025&nik=1234567890
+```json
+{
+    "apply_date": "01082025",
+    "nik": "1234567890"
+}
 ```
 
 ## Documentation
