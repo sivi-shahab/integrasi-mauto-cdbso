@@ -85,11 +85,11 @@ POST /v1/report-mauto
 Request Body:
 - `apply_date`: Date in ddmmyyyy format (required)
 - `nik`: NIK filter (optional)
-- `cc_ref`: CC Ref filter (optional)
+- `cc_reff`: CC Reff filter (optional)
 - `branch_code`: Branch code filter (optional)
 - `account_number`: Account number filter (optional)
 
-Note : `nik` or `cc_ref` must be provided
+Note : `nik` or `cc_reff` must be provided
 
 Example:
 ```json
