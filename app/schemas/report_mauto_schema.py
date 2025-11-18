@@ -1,8 +1,22 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from pydantic.config import ConfigDict
 from datetime import datetime
 from typing import Optional, List
 
+class ReportMautoCdsboRequest(BaseModel):
+    apply_date: str
+    nik: Optional[str] = None
+    cc_ref: Optional[str] = None
+    branch_code: Optional[str] = None
+    account_number: Optional[str] = None
+    limit: int = 10
+    offset: int = 0
+
+    @model_validator(mode='after')
+    def check_nik_or_cc_ref(self):
+        if not self.nik and not self.cc_ref:
+            raise ValueError('At least one of nik or cc_ref must be provided')
+        return self
 
 class ReportMautoCdsboBase(BaseModel):
     application_id: Optional[str]
