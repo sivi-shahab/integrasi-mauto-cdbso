@@ -17,7 +17,7 @@ router = APIRouter()
 def get_report_mauto(
     request: ReportMautoCdsboRequest,
     db: Session = Depends(get_db),
-    limit: int = 10,
+    limit: int = 100,
     offset: int = 0
 ) -> ReportMautoCdsboResponse:
     """
