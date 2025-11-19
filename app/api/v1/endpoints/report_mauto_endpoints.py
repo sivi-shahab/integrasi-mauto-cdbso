@@ -18,7 +18,7 @@ router = APIRouter()
 def get_report_mauto(
     request: ReportMautoCdsboRequest,
     db: Session = Depends(get_db)
-) -> ReportMautoCdsboResponse:
+):
     """
     Get report mauto cdsbo data based on the provided filters.
     
