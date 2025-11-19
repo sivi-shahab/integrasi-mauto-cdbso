@@ -16,9 +16,7 @@ router = APIRouter()
 )
 def get_report_mauto(
     request: ReportMautoCdsboRequest,
-    db: Session = Depends(get_db),
-    limit: int = 100,
-    offset: int = 0
+    db: Session = Depends(get_db)
 ) -> ReportMautoCdsboResponse:
     """
     Get report mauto cdsbo data based on the provided filters.
@@ -29,7 +27,7 @@ def get_report_mauto(
     - **account_number**: Optional account number filter.
     """
     try:
-        if limit < 0 or offset < 0:
+        if request.limit < 0 or request.offset < 0:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Limit and offset must be greater than or equal to 0")
         return ReportMautoService.get_report_mauto(db, request=request, limit=limit, offset=offset)
     except HTTPException as e:
