@@ -1,7 +1,7 @@
-from fastapi import HTTPException, Security
+from fastapi import HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 from app.core.configs import settings
-from fastapi import status
+from app.schemas.response import ResponseCode
 
 API_KEY_NAME = settings.API_KEY_NAME
 VALID_API_KEYS = settings.VALID_API_KEYS
@@ -12,10 +12,6 @@ def validate_api_key(api_key: str = Security(api_key_header)):
     if not api_key or api_key != VALID_API_KEYS:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={
-                "resposeCode": "02",
-                "responseDescription": "Invalid API Key",
-                "data": None
-            }
+            detail="Invalid API Key"
         )
     return api_key

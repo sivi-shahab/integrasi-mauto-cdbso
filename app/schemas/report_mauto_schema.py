@@ -9,8 +9,8 @@ class ReportMautoCdsboRequest(BaseModel):
     cc_reff: Optional[str] = None
     branch_code: Optional[str] = None
     account_number: Optional[str] = None
-    limit: int = 100
-    offset: int = 0
+    limit: int = Field(default=100)
+    offset: int = Field(default=0)
 
     @model_validator(mode='after')
     def check_nik_or_cc_ref(self):
