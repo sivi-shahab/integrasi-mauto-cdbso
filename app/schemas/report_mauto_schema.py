@@ -9,7 +9,7 @@ class ReportMautoCdsboRequest(BaseModel):
     cc_reff: Optional[str] = None
     branch_code: Optional[str] = None
     account_number: Optional[str] = None
-    limit: int = 10
+    limit: int = 100
     offset: int = 0
 
     @model_validator(mode='after')
