@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from app.api.v1.endpoints import report_mauto_endpoints
+from app.api.v2.endpoints import report_mauto_endpoints
 from app.core.api_key_auth import validate_api_key
 
 router = APIRouter(
