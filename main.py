@@ -1,12 +1,14 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.routes import router as api_v1_router
-from app.core.logging import setup_logging
 import logging
+
 import uvicorn
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi import Request, status, HTTPException
+
+from app.api.v1.routes import router as api_v1_router
+from app.api.v2.routes import router as api_v2_router
+from app.core.logging import setup_logging
 from app.schemas.response import ResponseCode
 
 logger = logging.getLogger(__name__)
@@ -31,6 +33,7 @@ def create_application() -> FastAPI:
     )
 
     application.include_router(api_v1_router, prefix="/v1")
+    application.include_router(api_v2_router, prefix="/v2")
 
     logger.info("FastAPI application configured successfully")
     return application
@@ -41,14 +44,14 @@ app = create_application()
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     errors = exc.errors()
     error_messages = []
-    
+
     for error in errors:
         if error["type"] == "value_error":
             error_messages.append(error["msg"])
         else:
             field = ".".join(str(loc) for loc in error["loc"][1:])
             error_messages.append(f"{field}: {error['msg']}")
-    
+
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={
@@ -62,7 +65,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 async def general_exception_handler(request: Request, exc: Exception):
     # Log the full error for debugging
     logger.error(f"Internal Server Error: {str(exc)}", exc_info=True)
-    
+
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
@@ -82,9 +85,9 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         404: ResponseCode.NOT_FOUND,
         500: ResponseCode.INTERNAL_ERROR,
     }
-    
+
     response_code = response_code_map.get(exc.status_code, ResponseCode.INTERNAL_ERROR)
-    
+
     return JSONResponse(
         status_code=exc.status_code,
         content={

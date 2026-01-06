@@ -1,24 +1,33 @@
-from sqlalchemy.orm import Session
-from fastapi import status
 from datetime import datetime
-from typing import Optional
-from fastapi.responses import JSONResponse
-from sqlalchemy import cast, Date, text, bindparam
-from fastapi.encoders import jsonable_encoder
-from app.models.report_mauto_model import ReportMautoCdsbo
-from app.schemas.report_mauto_schema import ReportMautoCdsboResponse, ReportMautoCdsboBase, ReportMautoCdsboRequest
-from app.schemas.response import success_response, error_response, StandardResponse
 from logging import getLogger
-from app.schemas.response import ResponseCode
+from typing import Optional
+
+from fastapi import status
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+from sqlalchemy import Date, bindparam, cast, text
+from sqlalchemy.orm import Session
+
+from app.models.report_mauto_model import ReportMautoCdsbo
+from app.schemas.report_mauto_schema import (
+    ReportMautoCdsboBase,
+    ReportMautoCdsboRequest,
+    ReportMautoCdsboResponse,
+)
+from app.schemas.response import (
+    ResponseCode,
+    StandardResponse,
+    error_response,
+    success_response,
+)
 
 logger = getLogger(__name__)
+
+
 class ReportMautoService:
     @staticmethod
     def get_report_mauto(
-        db: Session,
-        request: ReportMautoCdsboRequest,
-        limit: int = 10,
-        offset: int = 0
+        db: Session, request: ReportMautoCdsboRequest, limit: int = 10, offset: int = 0
     ):
         try:
             # Parse apply_date with expected format
@@ -28,8 +37,7 @@ class ReportMautoService:
             except ValueError:
                 logger.error("Invalid date format. Use ddmmyyyy.")
                 return error_response(
-                    ResponseCode.BAD_REQUEST,
-                    "Invalid date format. Use ddmmyyyy."
+                    ResponseCode.BAD_REQUEST, "Invalid date format. Use ddmmyyyy."
                 )
 
             # Helper sanitization functions
@@ -49,7 +57,7 @@ class ReportMautoService:
 
             # SQL Query pakai bind parameter
             query = text("""
-                SELECT * FROM report_mauto_cdsbo 
+                SELECT * FROM report_mauto_cdsbo
                 WHERE DATE(apply_date) = :apply_date
                 AND (:nik IS NULL OR nik = :nik)
                 AND (:cc_reff IS NULL OR cc_reff = :cc_reff)
@@ -74,7 +82,7 @@ class ReportMautoService:
                 "branch_code": branch_code,
                 "account_number": account_number,
                 "limit": limit,
-                "offset": offset
+                "offset": offset,
             }
 
             # Eksekusi query
@@ -87,7 +95,4 @@ class ReportMautoService:
 
         except Exception as e:
             logger.error(f"Exception: {e}")
-            return error_response(
-                ResponseCode.INTERNAL_ERROR,
-                "Internal Server Error"
-            )
+            return error_response(ResponseCode.INTERNAL_ERROR, "Internal Server Error")
