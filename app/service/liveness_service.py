@@ -21,7 +21,7 @@ logger = getLogger(__name__)
 class LivenessService:
     @staticmethod
     def get_liveness_data(
-        db: Session, request: LivenessRequest, limit: int = 10, offset: int = 0
+        db: Session, request: LivenessRequest
     ):
         try:
             # SQL Query pakai bind parameter
@@ -34,13 +34,19 @@ class LivenessService:
 
             # Parameter dictionary
             params = {
-                "token": LivenessRequest.token,
+                "token": request.token,
             }
 
             # Eksekusi query
-            results = db.execute(query, params).fetchone()
-            # Ubah ke list of dict (jika perlu)
-            result_dict = dict(results) if results else None
+            cursor = db.execute(query, params)
+            results = cursor.fetchone()
+
+
+            if results:
+                columns = cursor.keys()
+                result_dict = dict(zip(columns, results))
+            else:
+                return error_response(ResponseCode.NOT_FOUND, "Data Not Found")
 
             return success_response(result_dict)
 
