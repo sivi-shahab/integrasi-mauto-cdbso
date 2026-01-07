@@ -1,10 +1,12 @@
+from logging import getLogger
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.service.report_mauto_service import ReportMautoService
+
 from app.core.deps import get_db
-from app.schemas.report_mauto_schema import ReportMautoCdsboRequest, ReportMautoCdsboResponse
-from app.schemas.response import error_response, ResponseCode
-from logging import getLogger
+from app.schemas.report_mauto_schema import ReportMautoCdsboRequest
+from app.schemas.response import ResponseCode, error_response
+from app.service.report_mauto_service import ReportMautoService
 
 logger = getLogger(__name__)
 
@@ -21,7 +23,7 @@ def get_report_mauto(
 ):
     """
     Get report mauto cdsbo data based on the provided filters.
-    
+
     - **apply_date**: Date in ddmmyyyy format.
     - **nik**: Optional NIK filter.
     - **branch_code**: Optional branch code filter.
