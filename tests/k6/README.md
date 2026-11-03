@@ -47,7 +47,10 @@ tests/k6/
 ├── README.md               # dokumen ini
 ├── report_mauto_stress.js  # script k6
 ├── data.example.csv        # contoh format data uji (bukan data asli)
+├── data.ci.csv             # data uji untuk GitHub Actions (cocok dengan seed tests/functional/ci)
+├── k6_to_allure.py         # konversi summary k6 -> Allure results (TS-07)
 ├── .gitignore              # mengabaikan data.csv (berisi NIK)
+├── published/              # summary run internal yang ditampilkan di Allure report
 └── results/                # output handleSummary (isi di-ignore git)
 ```
 
@@ -477,6 +480,52 @@ k6 run tests/k6/report_mauto_stress.js ...
 ```
 
 Buka `http://localhost:5665` selama test berjalan; laporan HTML tersimpan saat test selesai.
+
+### Hasil k6 di Allure report (TS-07)
+
+`k6_to_allure.py` mengubah setiap threshold di summary k6 menjadi test case Allure di bawah
+story **TS-07 Performa (k6)**, sehingga tampil di report yang sama dengan functional test:
+
+| TC    | Threshold                         | Severity |
+|-------|-----------------------------------|----------|
+| TC-17 | `http_req_failed` rate < 1%       | critical |
+| TC-18 | `http_req_duration` p95 < 1000 ms | critical |
+| TC-19 | `http_req_duration` p99 < 2000 ms | normal   |
+| TC-20 | `business_success` rate > 99%     | critical |
+| TC-21 | `checks` rate > 99%               | normal   |
+
+Nama test case memuat skenario dan environment, mis. `TC-18 Latency p95 di bawah 1000 ms [stress · Internal UAT]`.
+Setiap test case melampirkan ringkasan k6 (`.txt`) dan overview (RPS, latency, ukuran response).
+Host/IP target disamarkan (`<host>`) karena repository publik.
+
+Ada dua sumber hasil:
+
+| Sumber | Skenario | Environment | Cara |
+|--------|----------|-------------|------|
+| GitHub Actions | `smoke` (default) / `load` (pilih via *Run workflow*) | Postgres + data sintetis (`data.ci.csv`) | Otomatis tiap push ke `main` / PR |
+| Server internal | `stress`, `load`, `spike`, `soak` | DB UAT | Manual, lalu dipublikasikan lewat folder `published/` |
+
+Di GitHub Actions hanya `smoke`/`load` ringan sebagai deteksi regresi: runner hanya 2–4 core,
+k6 dan service berbagi CPU, dan datanya kecil — angka di sana tidak sebanding dengan server asli.
+
+**Mempublikasikan hasil stress test internal ke Allure:**
+
+```bash
+# 1. jalankan stress test di server internal (lihat bagian 8)
+k6 run tests/k6/report_mauto_stress.js -e SCENARIO=stress -e DATA_FILE=./data.csv -e API_KEY=... -e BASE_URL=...
+
+# 2. (opsional) cek tampilan di Allure lokal
+python3 tests/k6/k6_to_allure.py tests/k6/results/summary_stress_<timestamp>.json \
+  --out tests/functional/allure-results --env "Internal UAT"
+
+# 3. salin summary ke published/ lalu commit & push
+cp tests/k6/results/summary_stress_<timestamp>.{json,txt} tests/k6/published/
+git add tests/k6/published && git commit -m "perf: hasil stress test <tanggal>" && git push
+```
+
+Workflow selalu menyertakan isi `published/` dengan label `Internal UAT`. Hanya summary
+**terbaru per skenario** yang ditampilkan (berdasarkan timestamp di nama file). Pastikan file
+tidak berisi data sensitif sebelum di-commit; summary k6 hanya berisi metrik agregat.
 
 ## 14. Monitoring Selama Test
 

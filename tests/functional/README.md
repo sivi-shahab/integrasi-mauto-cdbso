@@ -33,6 +33,10 @@ Sumber kebenaran test scenario/test case: [`features/report_mauto.feature`](feat
 | TS-05 Tidak ditemukan | TC-15 ⚠ | nik tidak terdaftar / tanggal tanpa data | normal | 200 / `00`, data kosong |
 | TS-06 Autentikasi | TC-16 | API key salah / kosong / tanpa header | blocker | 401 / `41` "Invalid API Key" |
 
+| TS-07 Performa (k6) | TC-17 – TC-21 | Threshold k6: error HTTP, latency p95/p99, `business_success`, `checks` | critical/normal | lihat [tests/k6/README.md](../k6/README.md#hasil-k6-di-allure-report-ts-07) |
+
+TS-07 tidak berasal dari feature file ini, melainkan dari summary k6 yang dikonversi oleh `tests/k6/k6_to_allure.py`.
+
 ⚠ = tag `@needs-confirmation`: expected mengikuti perilaku service saat ini dan perlu konfirmasi bisnis.
 
 ## Menjalankan
@@ -62,7 +66,8 @@ pada push ke `main`, pull request, dan manual (`workflow_dispatch`):
 1. Menjalankan Postgres 16 sebagai service container.
 2. Membuat tabel dari [`ci/schema.sql`](ci/schema.sql) (struktur tabel UAT, tanpa data) dan mengisi
    data sintetis via [`ci/seed.py`](ci/seed.py). Tidak terhubung ke DB internal.
-3. Menjalankan service (uvicorn) lalu `pytest`.
+3. Menjalankan service (uvicorn), `pytest`, lalu k6 skenario `smoke` (atau `load` via *Run workflow*)
+   dan mengonversi hasilnya ke Allure (TS-07), ditambah hasil run internal di `tests/k6/published/`.
 4. Membuat Allure report (dengan trend dari run sebelumnya), upload sebagai artifact, dan
    untuk `main` mempublikasikannya ke GitHub Pages (branch `gh-pages`):
    <https://sivi-shahab.github.io/integrasi-mauto-cdbso/>

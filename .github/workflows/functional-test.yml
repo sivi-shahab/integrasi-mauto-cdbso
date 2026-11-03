@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      k6_scenario:
+        description: "Skenario k6 (TS-07). Stress test sebenarnya dijalankan internal, lihat tests/k6/README.md"
+        type: choice
+        options: [smoke, load]
+        default: smoke
 
 permissions:
   contents: write   # push report ke branch gh-pages
@@ -15,6 +21,8 @@ concurrency:
 
 env:
   ALLURE_VERSION: "2.32.0"
+  K6_IMAGE: grafana/k6:0.54.0
+  K6_SCENARIO: ${{ inputs.k6_scenario || 'smoke' }}
   # Konfigurasi service. Postgres hanya hidup di job ini dan berisi data sintetis.
   POSTGRES_HOST: 127.0.0.1
   POSTGRES_PORT: "5432"
@@ -67,6 +75,27 @@ jobs:
         id: pytest
         continue-on-error: true
         run: uv run pytest
+
+      # ---------------- TS-07 Performa (k6) ----------------
+      - name: Run k6 (${{ env.K6_SCENARIO }})
+        id: k6
+        continue-on-error: true
+        run: |
+          docker run --rm --network host --user "$(id -u):$(id -g)" \
+            -v "$PWD":/work -w /work "$K6_IMAGE" run \
+            -e BASE_URL="http://127.0.0.1:8013" \
+            -e API_KEY_NAME="$API_KEY_NAME" -e API_KEY="$VALID_API_KEYS" \
+            -e SCENARIO="$K6_SCENARIO" -e DATA_FILE=./data.ci.csv \
+            tests/k6/report_mauto_stress.js
+
+      - name: Konversi hasil k6 ke Allure
+        if: always()
+        run: |
+          python3 tests/k6/k6_to_allure.py tests/k6/results \
+            --out tests/functional/allure-results --env "CI (GitHub Actions)"
+          # hasil load/stress test internal yang dipublikasikan (summary terbaru per skenario)
+          python3 tests/k6/k6_to_allure.py tests/k6/published \
+            --out tests/functional/allure-results --env "Internal UAT"
 
       - name: Service log
         if: always()
@@ -152,5 +181,7 @@ jobs:
           fi
 
       - name: Gagalkan job jika test gagal
-        if: steps.pytest.outcome == 'failure'
-        run: exit 1
+        if: steps.pytest.outcome == 'failure' || steps.k6.outcome == 'failure'
+        run: |
+          echo "pytest: ${{ steps.pytest.outcome }}, k6: ${{ steps.k6.outcome }}"
+          exit 1
