@@ -1,9 +1,0 @@
-{
-  "http_status": 200,
-  "responseCode": "40",
-  "responseDescription": "apply_date is required with format ddmmyyyy.",
-  "row_count": null,
-  "size_kb": 0.1,
-  "elapsed_ms": 1.7,
-  "rows": []
-}

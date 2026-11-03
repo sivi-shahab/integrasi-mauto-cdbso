@@ -1,0 +1,20 @@
+{
+  "scenario": "load",
+  "duration_s": 300.1,
+  "vus_max": 20,
+  "http_reqs": 7967,
+  "rps": 26.54,
+  "latency_ms": {
+    "p(99)": 1217.9,
+    "max": 1967.8,
+    "avg": 568.3,
+    "min": 12.6,
+    "med": 579.9,
+    "p(90)": 891.6,
+    "p(95)": 997.6
+  },
+  "http_req_failed_pct": 0,
+  "business_success_pct": 100,
+  "avg_response_kb": 3549.6,
+  "rows_returned_avg": 6.21
+}
