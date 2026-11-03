@@ -37,10 +37,11 @@ Sumber kebenaran test scenario/test case: [`features/report_mauto.feature`](feat
 
 | TS-08 Isu §9 README k6 | TC-22 | Pool DB: `pool_pre_ping` aktif, `pool_timeout` ≤ 10 dtk (§9.1) | critical | lulus setelah fix |
 | | TC-23 | Ukuran pool bisa diatur via env `DB_POOL_SIZE` / `DB_MAX_OVERFLOW` (§9.2) | normal | lulus setelah fix |
-| | TC-24 | Log level INFO tidak memuat NIK (§9.3) | critical | lulus setelah fix |
-| | TC-25 | File log dirotasi harian (`TimedRotatingFileHandler`, midnight) (§9.3) | normal | lulus setelah fix |
-| | TC-26 ⚠ | Response list tanpa `selfie`, `request_base64_ktp`, `profile_pic` (§9.4) | critical | lulus setelah fix |
-| | TC-27 | Rata-rata ukuran response < 20 KB per baris (§9.4) | normal | lulus setelah fix |
+| | TC-24 | Log level INFO (dan level lain) tidak memuat NIK lengkap (§9.3) | critical | ✅ lulus sejak fix §9.3 |
+| | TC-25 | File log dirotasi harian (`TimedRotatingFileHandler`, midnight) (§9.3) | normal | ✅ lulus sejak fix §9.3 |
+| | TC-28 | NIK di pesan error & traceback disamarkan di file log (§9.3) | critical | ✅ lulus sejak fix §9.3 |
+| | TC-26 | Kontrak tetap: kolom `selfie`, `request_base64_ktp`, `profile_pic` tetap ada, `apply_date` ISO 8601 (§9.4) | critical | lulus (guard kontrak) |
+| | TC-27 | Render endpoint response 12 baris (6,8 MB) median < 35 ms (§9.4) | critical | ✅ lulus sejak fix §9.4 |
 
 TS-07 tidak berasal dari feature file ini, melainkan dari summary k6 yang dikonversi oleh `tests/k6/k6_to_allure.py`.
 
@@ -49,17 +50,23 @@ TS-07 tidak berasal dari feature file ini, melainkan dari summary k6 yang dikonv
 TS-08 merekam isu di [README k6 §9](../k6/README.md#9-risiko--hal-yang-perlu-diperhatikan) **sebelum**
 diperbaiki. Test case diberi tag `@known_issue`:
 
-- **Before (sekarang):** TC-22 sampai TC-27 **gagal** di Allure sebagai bukti isu. Di CI dijalankan terpisah
+- Status 2026-11-03: §9.3 (TC-24, TC-25, TC-28) dan §9.4 (TC-26, TC-27) **sudah diperbaiki** dan menjadi gate;
+  yang masih `@known_issue`: TC-22, TC-23 (§9.1/§9.2).
+- **Before:** TC-22 sampai TC-27 **gagal** di Allure sebagai bukti isu. Di CI dijalankan terpisah
   (`pytest -m known_issue`) sehingga tidak menggagalkan pipeline.
 - **After:** setelah satu isu diperbaiki, test case-nya otomatis **lulus**. Hapus tag `@known_issue` dari
   skenario tersebut agar menjadi gate (regresi akan menggagalkan pipeline).
 - Riwayat gagal → lulus per test case terlihat di tab **History** pada detail test case dan grafik **Trend**
   di Allure report. Bukti tertulis ada di `docs/load-test/2026-11-03/BASELINE-ISSUES.md`.
 
-TC-22, TC-23 dan TC-25 memeriksa konfigurasi service (import kode `app/` di proses terpisah); TC-24 membaca
+TC-22, TC-23, TC-25 dan TC-28 memeriksa konfigurasi service (import kode `app/` di proses terpisah); TC-24 membaca
 file log service di `logs/` (atau `REPORT_MAUTO_LOG_DIR`) dan di-skip jika service berjalan di host lain.
-Seed CI memakai kolom gambar dummy berukuran sama dengan rata-rata UAT, sehingga TC-26/TC-27 juga
-merekam isu di CI.
+Seed CI memakai kolom gambar dummy berukuran sama dengan rata-rata UAT.
+
+Status §9.4 (2026-11-03): keputusan kontrak response **tetap** (kolom gambar tetap dikirim). TC-26 menjadi guard
+kontrak; TC-27 mengukur jalur endpoint lengkap dengan DB palsu (TestClient) sehingga hanya biaya aplikasi
+yang terukur: before 52–56 ms, after ±17 ms. Keduanya tanpa tag `@known_issue` (gate). Lihat
+`docs/load-test/2026-11-03/FIX-9.4.md`.
 
 ⚠ = tag `@needs-confirmation`: expected mengikuti perilaku service saat ini dan perlu konfirmasi bisnis.
 

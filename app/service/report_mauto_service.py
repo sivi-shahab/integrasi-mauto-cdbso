@@ -1,3 +1,4 @@
+import time
 from datetime import date, datetime, timedelta
 from logging import getLogger
 from typing import Optional
@@ -105,17 +106,20 @@ class ReportMautoService:
 
         # --- Eksekusi ---
         try:
+            started = time.perf_counter()
             rows = db.execute(QUERY, params).mappings().all()
             data = [dict(row) for row in rows]
-            logger.info(
-                "report_mauto nik=%s apply_date=%s rows=%d",
-                nik, parsed_date, len(data),
+            # DEBUG (tidak ditulis pada LOG_LEVEL=INFO) dan tanpa NIK: README k6 §9.3.
+            logger.debug(
+                "report_mauto apply_date=%s rows=%d query_ms=%.1f",
+                parsed_date, len(data), (time.perf_counter() - started) * 1000,
             )
             # FastJSONResponse: lewati jsonable_encoder + json.dumps (±60% CPU per
             # request karena kolom gambar base64). Isi response tidak berubah.
             return FastJSONResponse(success_response(data))
         except Exception:
-            logger.exception("get_report_mauto failed, params=%s", params)
+            safe_params = {k: v for k, v in params.items() if k != "nik"}
+            logger.exception("get_report_mauto failed, params=%s", safe_params)
             return error_response(
                 ResponseCode.INTERNAL_ERROR, "Internal Server Error"
             )

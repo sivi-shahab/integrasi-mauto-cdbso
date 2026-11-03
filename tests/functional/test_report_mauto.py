@@ -70,14 +70,14 @@ def _to_iso(ddmmyyyy):
     return f"{ddmmyyyy[4:]}-{ddmmyyyy[2:4]}-{ddmmyyyy[:2]}"
 
 
-def _inspect(code, env=None, cwd=ROOT):
+def _inspect(code, env=None, cwd=ROOT, args=()):
     """Jalankan potongan Python di proses terpisah (pakai kode service) dan kembalikan JSON-nya.
 
     Proses terpisah agar env override dan side effect (mis. setup_logging) tidak
     memengaruhi proses test.
     """
     full_env = {**os.environ, "PYTHONPATH": str(ROOT), **(env or {})}
-    proc = subprocess.run([sys.executable, "-c", code], cwd=cwd, env=full_env,
+    proc = subprocess.run([sys.executable, "-c", code, *args], cwd=cwd, env=full_env,
                           capture_output=True, text=True, timeout=60)
     assert proc.returncode == 0, f"Inspeksi gagal: {proc.stderr[-1000:]}"
     result = json.loads(proc.stdout.strip().splitlines()[-1])
@@ -92,6 +92,23 @@ p = engine.pool
 print(json.dumps({"pool_class": type(p).__name__, "pool_size": p.size(),
     "max_overflow": getattr(p, "_max_overflow", None), "pool_timeout": getattr(p, "_timeout", None),
     "pool_pre_ping": bool(getattr(p, "_pre_ping", False)), "pool_recycle": getattr(p, "_recycle", None)}))
+"""
+
+_LOG_ERROR_CODE = """
+import json, logging, pathlib, sys
+from app.core.logging import setup_logging
+setup_logging()
+log = logging.getLogger("app.service.report_mauto_service")
+nik = sys.argv[1]
+try:
+    raise RuntimeError(f"query gagal [parameters: {{'nik': '{nik}'}}]")
+except RuntimeError:
+    log.exception("get_report_mauto failed, nik=%s", nik)
+log.error(f"Exception: nik={nik}")
+for h in logging.getLogger().handlers:
+    h.flush()
+text = "".join(p.read_text(encoding="utf-8") for p in pathlib.Path("logs").glob("*.log*"))
+print(json.dumps({"log": text}))
 """
 
 _LOGGING_CODE = """
@@ -242,6 +259,12 @@ def read_logging_config(ctx):
 @when("response 12 baris dengan kolom gambar seukuran UAT dirender lewat endpoint")
 def bench_render(ctx):
     ctx["bench"] = _inspect(_BENCH_CODE)
+
+
+@when(parsers.parse('error yang memuat nik "{nik}" dicatat oleh logging service'))
+def log_error_with_nik(ctx, nik):
+    with tempfile.TemporaryDirectory() as tmp:  # file log ditulis ke tmp/logs
+        ctx["error_log"] = _inspect(_LOG_ERROR_CODE, cwd=tmp, args=(nik,))["log"]
 
 
 @when(parsers.parse('request dikirim sambil memantau log service dengan nik "{nik}" dan apply_date "{apply_date}"'))
@@ -412,6 +435,26 @@ def log_has_no_nik(ctx, nik):
         "log service", allure.attachment_type.JSON,
     )
     assert not leaked, f"{len(leaked)} baris log INFO memuat NIK, contoh: {leaked[0]}"
+
+
+@then(parsers.parse('log service tidak memuat nik "{nik}" pada level apa pun'))
+def log_has_no_nik_any_level(ctx, nik):
+    leaked = [_mask_nik(line, nik) for line in ctx["log_lines"] if nik in line]
+    assert not leaked, f"{len(leaked)} baris log memuat NIK lengkap, contoh: {leaked[0]}"
+
+
+@then(parsers.parse('file log tidak memuat nik "{nik}"'))
+def error_log_no_nik(ctx, nik):
+    text = ctx["error_log"]
+    allure.attach(_mask_nik(text, nik)[-3000:], "isi file log (NIK disamarkan untuk report)",
+                  allure.attachment_type.TEXT)
+    count = text.count(nik)
+    assert count == 0, f"NIK lengkap muncul {count} kali di file log (pesan error/traceback)"
+
+
+@then(parsers.parse('file log memuat nik tersamar "{masked}"'))
+def error_log_masked(ctx, masked):
+    assert masked in ctx["error_log"], f"NIK tersamar {masked!r} tidak ditemukan di file log"
 
 
 @then("file log memakai rotasi harian")

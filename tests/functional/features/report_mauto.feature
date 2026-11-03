@@ -218,16 +218,24 @@ Feature: POST /v1/report_mauto
       Then pool_size adalah 3
       And max_overflow adalah 2
 
-    @TC-24 @severity:critical @known_issue @issue_9_3
+    # §9.3 diperbaiki 2026-11-03: tag @known_issue dihapus dari TC-24/TC-25 (gate).
+    @TC-24 @severity:critical @issue_9_3
     Scenario: TC-24 Log aplikasi level INFO tidak memuat NIK (§9.3)
       When request dikirim sambil memantau log service dengan nik "3201133107990002" dan apply_date "29092025"
       Then responseCode adalah "00"
       And log service level INFO tidak memuat nik "3201133107990002"
+      And log service tidak memuat nik "3201133107990002" pada level apa pun
 
-    @TC-25 @severity:normal @known_issue @issue_9_3
+    @TC-25 @severity:normal @issue_9_3
     Scenario: TC-25 File log dirotasi harian (§9.3)
       When konfigurasi logging service dibaca
       Then file log memakai rotasi harian
+
+    @TC-28 @severity:critical @issue_9_3
+    Scenario: TC-28 NIK pada pesan error dan traceback disamarkan di file log (§9.3)
+      When error yang memuat nik "3201133107990002" dicatat oleh logging service
+      Then file log tidak memuat nik "3201133107990002"
+      And file log memuat nik tersamar "3201********0002"
 
     # §9.4 keputusan 2026-11-03: kontrak response TETAP (kolom gambar tetap dikirim).
     # Perbaikan difokuskan pada efisiensi serialisasi, bukan isi response.

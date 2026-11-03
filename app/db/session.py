@@ -13,6 +13,8 @@ DATABASE_URL = (
 )
 
 
-engine = create_engine(DATABASE_URL)
+# hide_parameters: pesan error SQLAlchemy tidak memuat nilai parameter query
+# (mis. NIK) sehingga tidak bocor ke log (README k6 §9.3).
+engine = create_engine(DATABASE_URL, hide_parameters=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
