@@ -9,8 +9,8 @@ dan [`docs/load-test/2026-11-03/REPORT.md`](load-test/2026-11-03/REPORT.md).
 |------|--------|--------|-----------------------|
 | 9.1 | Connection pool DB default | ❌ Belum | `app/db/session.py` memakai `create_engine(DATABASE_URL)` tanpa konfigurasi: `pool_size=5`, `max_overflow=10`, `pool_timeout=30`, tanpa `pool_pre_ping` |
 | 9.2 | Total koneksi ke PostgreSQL | ⚠️ Belum relevan | Masih 1 worker (`main.py`), maks 15 koneksi. Relevan setelah multi-worker |
-| 9.3 | Log `INFO` per request | ❌ Belum | `report_mauto_service.py` menulis 1 log `INFO` per request, berisi NIK. Nama file log memakai tanggal saat startup, tidak berganti per hari |
-| 9.4 | Ukuran response (`SELECT *`) | ❌ Belum | Masih `SELECT *` termasuk `request_base64_ktp`, `profile_pic`, `selfie` (±563 KB/baris di UAT); rata-rata ~3,4 MB/response, maks 13,5 MB |
+| 9.3 | Log `INFO` per request | ✅ Diperbaiki | `report_mauto_service.py` menulis 1 log `INFO` per request, berisi NIK. Nama file log memakai tanggal saat startup, tidak berganti per hari |
+| 9.4 | Ukuran response (`SELECT *`) | ✅ Diperbaiki (serialisasi), kontrak tetap | Masih `SELECT *` termasuk `request_base64_ktp`, `profile_pic`, `selfie` (±563 KB/baris di UAT); rata-rata ~3,4 MB/response, maks 13,5 MB |
 | 9.5 | Batas mesin k6 | n/a | Catatan operasional mesin load test, bukan bug aplikasi |
 
 Bukti kondisi sebelum perbaikan: [`docs/load-test/2026-11-03/BASELINE-ISSUES.md`](load-test/2026-11-03/BASELINE-ISSUES.md),
@@ -20,7 +20,7 @@ Allure **TS-08** (TC-22 – TC-27, tag `@known_issue`), dan GitHub Issues dari [
 |-----|------------------|-------------------------|
 | 9.1 | TC-22 | `docs/issues/9.1-connection-pool.md` |
 | 9.2 | TC-23 | `docs/issues/9.2-total-koneksi.md` |
-| 9.3 | TC-24, TC-25 | `docs/issues/9.3-logging.md` |
+| 9.3 | TC-24, TC-25, TC-28 | `docs/issues/9.3-logging.md` |
 | 9.4 | TC-26, TC-27 | `docs/issues/9.4-ukuran-response.md` |
 
 Fix yang sudah masuk `main`: paging tidak stabil (tiebreaker `ctid`, commit `ddb2345`) dan
@@ -32,18 +32,16 @@ Hasil load test (20 VU): service jenuh di ±26 req/s, bottleneck **CPU 1 proses 
 
 ## 2. Rencana perbaikan (urut prioritas)
 
-### P1 — Kurangi ukuran response (9.4) · perlu keputusan bisnis
+### P1 — Efisiensi response besar (9.4) · ✅ selesai 2026-11-03
 
-- **Masalah:** kolom gambar base64 mendominasi ukuran response dan CPU serialisasi JSON.
-- **Rencana:**
-  1. Konfirmasi ke klien/konsumen API apakah `selfie`, `request_base64_ktp`, dan `profile_pic` dibutuhkan di endpoint list.
-  2. Ganti `SELECT *` dengan daftar kolom eksplisit tanpa kolom gambar.
-  3. Jika gambar tetap dibutuhkan: endpoint detail terpisah per `application_id`
-     (mis. `POST /v1/report_mauto/image`), atau flag opsional `include_images` (default `false`)
-     agar kontrak lama tetap bisa dipakai selama masa transisi.
-- **File:** `app/service/report_mauto_service.py`, `app/schemas/report_mauto_schema.py`, dokumentasi API.
-- **Risiko:** breaking change ke klien → wajib dikomunikasikan / versi baru.
-- **Verifikasi:** functional test (TC-02 field utama tetap ada) + k6 `load`: ukuran response dan p95 turun.
+- **Keputusan (2026-11-03):** kontrak response **tetap sama**. Kolom `request_base64_ktp`, `profile_pic`,
+  `selfie` tetap dikirim, jadi rencana awal (hapus kolom / `include_images`) **tidak dipakai**.
+- **Masalah yang diperbaiki:** serialisasi JSON (`jsonable_encoder` + `json.dumps`) memakan ±60% CPU per request.
+- **Perbaikan:** `FastJSONResponse` (orjson) di `app/schemas/response.py`, dikembalikan langsung dari
+  `report_mauto_service.py`. Output byte-identik (diverifikasi 17 request di UAT dan 295 baris).
+- **Bukti:** [`docs/load-test/2026-11-03/FIX-9.4.md`](load-test/2026-11-03/FIX-9.4.md), Allure TC-26 (guard kontrak) & TC-27.
+- **Sisa:** ukuran response (±3,6 MB/request, ±98 MB/s) tetap besar karena keputusan kontrak. Bandwidth dan
+  memori tetap menjadi batas saat multi-worker (P2).
 
 ### P2 — Multi-worker + konfigurasi pool (9.1 & 9.2)
 
@@ -69,16 +67,13 @@ Hasil load test (20 VU): service jenuh di ±26 req/s, bottleneck **CPU 1 proses 
 - **Verifikasi:** k6 `load` & `stress` — throughput naik mendekati ×N, `non_success_response_code{code:99}` tetap 0;
   pantau `pg_stat_activity`.
 
-### P3 — Logging (9.3)
+### P3 — Logging (9.3) · ✅ selesai 2026-11-03
 
-- **Masalah:** log per request di level `INFO` berisi NIK (data pribadi) dan membesar cepat saat beban tinggi.
-- **Rencana:**
-  1. Turunkan log sukses ke `DEBUG`, atau hapus NIK dari pesan log (cukup jumlah baris + durasi).
-  2. Ganti `RotatingFileHandler` dengan nama file bertanggal startup menjadi
-     `TimedRotatingFileHandler(when="midnight", backupCount=N)` agar rotasi per hari benar.
-  3. Level log console/file dibuat bisa diatur dari env (`LOG_LEVEL`).
-- **File:** `app/service/report_mauto_service.py`, `app/core/logging.py`.
-- **Verifikasi:** jalankan k6 `load`, ukuran folder `logs/` tidak tumbuh signifikan; tidak ada NIK di log `INFO`.
+- **Perbaikan:** log per request ke DEBUG tanpa NIK; `MaskingFormatter` menyamarkan NIK di semua log & traceback;
+  `hide_parameters=True` di engine; `TimedRotatingFileHandler` harian; env `LOG_LEVEL`, `LOG_DIR`, `LOG_RETENTION_DAYS`.
+- **Bukti:** [`docs/load-test/2026-11-03/FIX-9.3.md`](load-test/2026-11-03/FIX-9.3.md), Allure TC-24, TC-25, TC-28.
+- **Catatan:** nama file log berubah (`logs/detailed.log`); file log lama berisi NIK perlu diarsipkan/dihapus;
+  saat multi-worker (P2) rotasi file perlu disesuaikan (lihat FIX-9.3 §5).
 
 ### P4 — Integritas paging (lanjutan fix `ctid`)
 
@@ -96,9 +91,9 @@ Hasil load test (20 VU): service jenuh di ±26 req/s, bottleneck **CPU 1 proses 
 
 | Tahap | Item | Butuh keputusan | Definisi selesai |
 |-------|------|-----------------|------------------|
-| 1 | P3 logging | Tidak | PR + functional test hijau di GitHub Actions |
+| ✅ | P3 logging (9.3) | Tidak | Selesai 2026-11-03, lihat `FIX-9.3.md` |
 | 2 | P2 pool + multi-worker | DBA (batas koneksi), infra (jumlah core) | k6 `load` dibandingkan dengan baseline 2026-11-03 |
-| 3 | P1 ukuran response | Ya — konsumen API | Kontrak baru disetujui, dokumentasi API diperbarui, k6 dibandingkan |
+| ✅ | P1 efisiensi response (9.4) | Diputuskan: kontrak tetap | Selesai 2026-11-03, lihat `FIX-9.4.md` |
 | 4 | P4 primary key | DBA / ETL | Tiebreaker `ctid` dihapus, TC-08 tetap hijau |
 | 5 | P5 kontrak validasi | Ya — bisnis | Tag `@needs-confirmation` dihapus dari feature file |
 

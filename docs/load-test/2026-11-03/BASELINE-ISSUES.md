@@ -97,7 +97,9 @@ Skenario `stress` (20 → 300 VU, 11 menit), konfigurasi sama dengan load test.
 
 ## After (setelah perbaikan)
 
-*Belum diisi.* Setelah perbaikan:
+Status per 2026-11-03: **§9.3 dan §9.4 selesai**, §9.1/§9.2 belum. Detail: [FIX-9.4.md](FIX-9.4.md), [FIX-9.3.md](FIX-9.3.md).
+
+Langkah untuk isu berikutnya:
 
 1. Hapus tag `@known_issue` dari skenario yang sudah diperbaiki di `tests/functional/features/report_mauto.feature`.
 2. Push → pastikan TC terkait **lulus** di Allure; catat nomor run GitHub Actions di tabel bawah.
@@ -108,9 +110,10 @@ Skenario `stress` (20 → 300 VU, 11 menit), konfigurasi sama dengan load test.
 |-----|----|--------|-------|--------------------|
 | §9.1 | TC-22 | gagal (`pre_ping=false`, `timeout=30`) | | |
 | §9.2 | TC-23 | gagal (pool tidak bisa diatur) | | |
-| §9.3 | TC-24 | gagal (NIK di log INFO) | | |
-| §9.3 | TC-25 | gagal (`RotatingFileHandler`) | | |
-| §9.4 | TC-26 | gagal (3 kolom gambar di response) | | |
-| §9.4 | TC-27 | gagal (561 KB/baris) | | |
-| k6 load | TS-07 | 26,5 req/s, p95 997,6 ms | | |
-| k6 stress | TS-07 | 28,6 req/s, p95 9.602 ms, RAM 2 GB, 0% error ([STRESS-BEFORE.md](STRESS-BEFORE.md)) | | |
+| §9.3 | TC-24 | gagal (NIK di log INFO) | ✅ lulus: 0 baris log memuat NIK lengkap | fix §9.3 ([FIX-9.3.md](FIX-9.3.md)) |
+| §9.3 | TC-25 | gagal (`RotatingFileHandler`) | ✅ lulus: `TimedRotatingFileHandler` midnight | fix §9.3 |
+| §9.3 | TC-28 (baru) | gagal (kode lama: NIK lengkap 6× di error/traceback) | ✅ lulus: 0×, tersamar 6× | fix §9.3 |
+| §9.4 | TC-26 | gagal (definisi awal: 3 kolom gambar di response) | ✅ lulus: diganti guard kontrak (kolom gambar **tetap**, keputusan 2026-11-03) | `813e869` ([FIX-9.4.md](FIX-9.4.md)) |
+| §9.4 | TC-27 | gagal (definisi awal: 561 KB/baris; definisi baru: render 52–56 ms) | ✅ lulus: render ±17 ms (< 35 ms) | `813e869` |
+| k6 load | TS-07 | 26,5 req/s, p95 997,6 ms | *belum dijalankan ulang* | |
+| k6 stress | TS-07 | 28,6 req/s, p95 9.602 ms, RAM 2 GB, 0% error ([STRESS-BEFORE.md](STRESS-BEFORE.md)) | **70,3 req/s (×2,46)**, p95 3.913 ms, RAM 1,9 GB, 0% error; threshold p95/p99 masih gagal di 300 VU | `813e869` (fix §9.4) |

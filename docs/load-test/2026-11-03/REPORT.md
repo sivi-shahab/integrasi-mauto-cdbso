@@ -159,4 +159,6 @@ REPORT_MAUTO_BASE_URL=http://localhost:8013 uv run pytest
 | `k6_load_fix.txt` | Ringkasan k6 versi fix |
 | `resource_fix.csv` | CPU % dan RSS service versi fix, per 5 detik |
 | `STRESS-BEFORE.md` | Stress test 20 → 300 VU sebelum perbaikan isu §9 (+ `k6_stress_before*.{txt,csv}`, `resource_stress_before.csv`) |
-| `BASELINE-ISSUES.md` | Bukti isu README k6 §9 sebelum perbaikan |
+| `BASELINE-ISSUES.md` | Bukti isu README k6 §9 sebelum & sesudah perbaikan |
+| `FIX-9.4.md` | Fix §9.4 (orjson, kontrak tetap) + stress test after (+ `k6_stress_after_fix94*`, `resource_stress_after_fix94.csv`) |
+| `FIX-9.3.md` | Fix §9.3 logging (NIK & rotasi harian) |

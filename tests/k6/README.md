@@ -290,10 +290,17 @@ service lain.
 
 ### 9.3 Log aplikasi
 
+> **Status 2026-11-03: diperbaiki.** Log per request kini DEBUG tanpa NIK, rotasi harian, level via `LOG_LEVEL`.
+> Lihat [`FIX-9.3.md`](../../docs/load-test/2026-11-03/FIX-9.3.md).
+
 Setiap request sukses menulis satu baris log `INFO`. Pada ribuan RPS, folder
 `logs/` bisa membesar cepat. Pastikan disk cukup, dan bersihkan/rotasi setelah test.
 
 ### 9.4 Ukuran response
+
+> **Status 2026-11-03: diperbaiki (serialisasi), kontrak tetap.** Kolom gambar tetap dikirim; serialisasi memakai
+> orjson sehingga throughput stress naik 28,55 → 70,25 req/s. Ukuran response tetap ±3,6 MB, jadi `data_received`
+> tetap perlu dipantau. Lihat [`FIX-9.4.md`](../../docs/load-test/2026-11-03/FIX-9.4.md).
 
 Query memakai `SELECT *` dari tabel lebar (±180 kolom, termasuk kolom seperti
 `request_base64_ktp` dan `selfie` yang bisa berukuran besar). Dengan `limit=100`,
