@@ -1,0 +1,20 @@
+{
+  "scenario": "stress",
+  "duration_s": 660.1,
+  "vus_max": 300,
+  "http_reqs": 79512,
+  "rps": 120.46,
+  "latency_ms": {
+    "p(95)": 1412.7,
+    "p(99)": 1949.4,
+    "max": 3734.3,
+    "avg": 540.4,
+    "min": 9.2,
+    "med": 416.5,
+    "p(90)": 1169.0
+  },
+  "http_req_failed_pct": 0.27,
+  "business_success_pct": 99.73,
+  "avg_response_kb": 3520.7,
+  "rows_returned_avg": 6.19
+}

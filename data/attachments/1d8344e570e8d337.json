@@ -1,0 +1,33 @@
+{
+  "workers": 2,
+  "files": [
+    "detailed-2026-11-03.log",
+    "detailed-2026-11-04.log",
+    "error-2026-11-03.log",
+    "error-2026-11-04.log"
+  ],
+  "active_files": [
+    "detailed-2026-11-04.log"
+  ],
+  "hari1": 2,
+  "hari2": 2,
+  "hari2_di_file_aktif": 2,
+  "per_file": {
+    "detailed-2026-11-04.log": {
+      "hari1": 0,
+      "hari2": 2
+    },
+    "error-2026-11-04.log": {
+      "hari1": 0,
+      "hari2": 0
+    },
+    "detailed-2026-11-03.log": {
+      "hari1": 2,
+      "hari2": 0
+    },
+    "error-2026-11-03.log": {
+      "hari1": 0,
+      "hari2": 0
+    }
+  }
+}

@@ -1,8 +1,0 @@
-{
-  "pool_class": "QueuePool",
-  "pool_size": 5,
-  "max_overflow": 10,
-  "pool_timeout": 30.0,
-  "pool_pre_ping": false,
-  "pool_recycle": -1
-}

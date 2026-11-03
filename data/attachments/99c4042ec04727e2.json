@@ -1,0 +1,20 @@
+{
+  "http_status": 200,
+  "responseCode": "00",
+  "responseDescription": "Success",
+  "row_count": 2,
+  "size_kb": 1122.7,
+  "elapsed_ms": 8.4,
+  "rows": [
+    {
+      "application_id": "APP-CI-00025",
+      "apply_date": "2026-01-30T09:00:00",
+      "status": "APPROVED"
+    },
+    {
+      "application_id": "APP-CI-00026",
+      "apply_date": "2026-01-30T09:00:00",
+      "status": "REJECTED"
+    }
+  ]
+}

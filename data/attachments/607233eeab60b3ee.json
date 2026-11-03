@@ -1,9 +1,0 @@
-{
-  "http_status": 400,
-  "responseCode": "40",
-  "responseDescription": "Value error, At least one of nik or cc_reff must be provided",
-  "row_count": null,
-  "size_kb": 0.1,
-  "elapsed_ms": 0.7,
-  "rows": []
-}

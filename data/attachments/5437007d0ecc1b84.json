@@ -1,9 +1,0 @@
-{
-  "http_status": 200,
-  "responseCode": "40",
-  "responseDescription": "Limit and offset must be greater than or equal to 0",
-  "row_count": null,
-  "size_kb": 0.1,
-  "elapsed_ms": 0.7,
-  "rows": []
-}
