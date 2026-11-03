@@ -99,4 +99,19 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8013, reload=False)
+    from app.core.configs import settings
+    from app.db.session import check_connection_budget, pool_settings
+
+    # Gagal start jika total koneksi melebihi budget (README k6 §9.2).
+    total = check_connection_budget(settings.APP_WORKERS)
+    logger.info(
+        "Start %d worker, pool per worker %s, total koneksi DB maks %d (budget %d)",
+        settings.APP_WORKERS, pool_settings(), total, settings.DB_CONNECTION_BUDGET,
+    )
+    uvicorn.run(
+        "main:app",
+        host=settings.APP_HOST,
+        port=settings.APP_PORT,
+        workers=settings.APP_WORKERS,
+        reload=False,
+    )

@@ -206,17 +206,24 @@ Feature: POST /v1/report_mauto
   # test menjadi gate (bukti "after"). Lihat docs/implementation-fixing-plan.md.
   Rule: TS-08 Isu performa dan operasional (README k6 §9)
 
-    @TC-22 @severity:critical @known_issue @issue_9_1
+    # §9.1/§9.2 diperbaiki 2026-11-03: tag @known_issue dihapus dari TC-22/TC-23 (gate).
+    @TC-22 @severity:critical @issue_9_1
     Scenario: TC-22 Connection pool database dikonfigurasi eksplisit (§9.1)
       When konfigurasi pool database service dibaca
       Then pool_pre_ping aktif
       And pool_timeout tidak lebih dari 10 detik
 
-    @TC-23 @severity:normal @known_issue @issue_9_2
+    @TC-23 @severity:normal @issue_9_2
     Scenario: TC-23 Ukuran pool dapat diatur lewat environment variable (§9.2)
       When konfigurasi pool database service dibaca dengan env "DB_POOL_SIZE=3,DB_MAX_OVERFLOW=2"
       Then pool_size adalah 3
       And max_overflow adalah 2
+
+    @TC-29 @severity:critical @issue_9_2
+    Scenario: TC-29 Total koneksi multi-worker dibatasi budget (§9.2)
+      When batas koneksi diperiksa untuk 4 dan 20 worker dengan env "DB_POOL_SIZE=5,DB_MAX_OVERFLOW=5,DB_CONNECTION_BUDGET=100"
+      Then konfigurasi 4 worker diterima dengan total 40 koneksi
+      And konfigurasi 20 worker ditolak karena melebihi DB_CONNECTION_BUDGET
 
     # §9.3 diperbaiki 2026-11-03: tag @known_issue dihapus dari TC-24/TC-25 (gate).
     @TC-24 @severity:critical @issue_9_3
@@ -236,6 +243,12 @@ Feature: POST /v1/report_mauto
       When error yang memuat nik "3201133107990002" dicatat oleh logging service
       Then file log tidak memuat nik "3201133107990002"
       And file log memuat nik tersamar "3201********0002"
+
+    @TC-30 @severity:critical @issue_9_2 @issue_9_3
+    Scenario: TC-30 Rotasi log harian tidak menghilangkan log saat beberapa worker (§9.2/§9.3)
+      When dua worker menulis log lalu sama-sama melakukan rotasi tengah malam
+      Then semua baris log sebelum dan sesudah rotasi masih tersimpan
+      And log setelah rotasi dari semua worker masuk ke file hari baru
 
     # §9.4 keputusan 2026-11-03: kontrak response TETAP (kolom gambar tetap dikirim).
     # Perbaikan difokuskan pada efisiensi serialisasi, bukan isi response.

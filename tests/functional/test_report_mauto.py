@@ -111,11 +111,58 @@ text = "".join(p.read_text(encoding="utf-8") for p in pathlib.Path("logs").glob(
 print(json.dumps({"log": text}))
 """
 
+_BUDGET_CODE = """
+import json, sys
+try:
+    from app.db.session import check_connection_budget
+except ImportError as exc:
+    print(json.dumps({"supported": False, "error": str(exc)}))
+    raise SystemExit
+out = {"supported": True}
+for workers in map(int, sys.argv[1:]):
+    try:
+        out[workers] = {"accepted": True, "total": check_connection_budget(workers)}
+    except ValueError as exc:
+        out[workers] = {"accepted": False, "error": str(exc)}
+print(json.dumps(out))
+"""
+
+# Dua "worker" = dua set handler (setup_logging dua kali) yang menulis file yang sama
+# dengan stream masing-masing, persis seperti dua proses uvicorn. Rotasi dipaksa pada
+# keduanya (meniru tengah malam); tanggal digeser +1 hari untuk handler berbasis tanggal.
+_MULTI_ROTATE_CODE = """
+import datetime as dt, json, logging, logging.handlers, pathlib
+import app.core.logging as L
+L.setup_logging(); L.setup_logging()
+log = logging.getLogger("multi")
+log.warning("MARK-HARI-1")
+class NextDay(dt.date):
+    @classmethod
+    def today(cls):
+        return dt.date.today() + dt.timedelta(days=1)
+L.date = NextDay
+handlers = [h for h in logging.getLogger().handlers if isinstance(h, logging.handlers.BaseRotatingHandler)]
+for h in handlers:
+    h.doRollover()
+log.warning("MARK-HARI-2")
+for h in handlers:
+    h.flush()
+texts = {p.name: p.read_text(encoding="utf-8") for p in pathlib.Path("logs").iterdir()}
+# file aktif (hari baru) menurut handler detailed; log hari-2 harus masuk ke sana
+active = sorted({pathlib.Path(h.baseFilename).name for h in handlers if "detailed" in h.baseFilename})
+print(json.dumps({"workers": 2, "files": sorted(texts), "active_files": active,
+    "hari1": sum(t.count("MARK-HARI-1") for t in texts.values()),
+    "hari2": sum(t.count("MARK-HARI-2") for t in texts.values()),
+    "hari2_di_file_aktif": sum(texts.get(a, "").count("MARK-HARI-2") for a in active),
+    "per_file": {n: {"hari1": t.count("MARK-HARI-1"), "hari2": t.count("MARK-HARI-2")} for n, t in texts.items()}}))
+"""
+
 _LOGGING_CODE = """
-import json, logging
+import json, logging, logging.handlers
 from app.core.logging import setup_logging
 setup_logging()
 print(json.dumps([{"handler": type(h).__name__, "file": getattr(h, "baseFilename", None),
+    "timed": isinstance(h, logging.handlers.TimedRotatingFileHandler),
     "when": getattr(h, "when", None)} for h in logging.getLogger().handlers]))
 """
 
@@ -248,6 +295,18 @@ def read_pool_config(ctx):
 def read_pool_config_env(ctx, pairs):
     env = dict(p.split("=", 1) for p in pairs.split(","))
     ctx["pool"] = _inspect(_POOL_CODE, env=env)
+
+
+@when(parsers.parse('batas koneksi diperiksa untuk {a:d} dan {b:d} worker dengan env "{pairs}"'))
+def check_budget(ctx, a, b, pairs):
+    env = dict(p.split("=", 1) for p in pairs.split(","))
+    ctx["budget"] = _inspect(_BUDGET_CODE, env=env, args=(str(a), str(b)))
+
+
+@when("dua worker menulis log lalu sama-sama melakukan rotasi tengah malam")
+def multi_worker_rotate(ctx):
+    with tempfile.TemporaryDirectory() as tmp:
+        ctx["rotation"] = _inspect(_MULTI_ROTATE_CODE, cwd=tmp)
 
 
 @when("konfigurasi logging service dibaca")
@@ -461,7 +520,7 @@ def error_log_masked(ctx, masked):
 def log_rotates_daily(ctx):
     file_handlers = [h for h in ctx["log_handlers"] if h["file"]]
     assert file_handlers, "Tidak ada file handler"
-    wrong = [h for h in file_handlers if h["handler"] != "TimedRotatingFileHandler" or h["when"] != "MIDNIGHT"]
+    wrong = [h for h in file_handlers if not h.get("timed") or h["when"] != "MIDNIGHT"]
     assert not wrong, (
         "File log tidak dirotasi harian: "
         + ", ".join(f"{h['handler']} ({Path(h['file']).name})" for h in wrong)
@@ -483,4 +542,39 @@ def render_time(ctx, ms):
     assert b["median_ms"] < ms, (
         f"render {b['response_mb']} MB ({b['rows']} baris) median {b['median_ms']} ms >= {ms} ms "
         "(serialisasi JSON standar: jsonable_encoder + json.dumps)"
+    )
+
+
+@then(parsers.parse("konfigurasi {workers:d} worker diterima dengan total {total:d} koneksi"))
+def budget_accepted(ctx, workers, total):
+    b = ctx["budget"]
+    assert b["supported"], f"Batas total koneksi belum diterapkan: {b.get('error')}"
+    r = b[str(workers)]
+    assert r["accepted"] and r["total"] == total, f"{workers} worker: {r}"
+
+
+@then(parsers.parse("konfigurasi {workers:d} worker ditolak karena melebihi DB_CONNECTION_BUDGET"))
+def budget_rejected(ctx, workers):
+    b = ctx["budget"]
+    assert b["supported"], f"Batas total koneksi belum diterapkan: {b.get('error')}"
+    r = b[str(workers)]
+    assert not r["accepted"] and "DB_CONNECTION_BUDGET" in r["error"], f"{workers} worker seharusnya ditolak: {r}"
+
+
+@then("semua baris log sebelum dan sesudah rotasi masih tersimpan")
+def rotation_no_loss(ctx):
+    r = ctx["rotation"]
+    expected = r["workers"]
+    assert r["hari1"] == expected and r["hari2"] == expected, (
+        f"Log hilang saat rotasi multi-worker: sebelum rotasi {r['hari1']}/{expected} baris, "
+        f"sesudah rotasi {r['hari2']}/{expected} baris. File: {r['files']}"
+    )
+
+
+@then("log setelah rotasi dari semua worker masuk ke file hari baru")
+def rotation_new_file(ctx):
+    r = ctx["rotation"]
+    assert r["hari2_di_file_aktif"] == r["workers"], (
+        f"Hanya {r['hari2_di_file_aktif']}/{r['workers']} worker menulis ke file hari baru {r['active_files']}; "
+        f"worker lain masih menulis ke file hari sebelumnya. Sebaran: {r['per_file']}"
     )
