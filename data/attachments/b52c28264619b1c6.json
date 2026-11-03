@@ -1,0 +1,17 @@
+[
+  {
+    "handler": "StreamHandler",
+    "file": null,
+    "when": null
+  },
+  {
+    "handler": "RotatingFileHandler",
+    "file": "/tmp/tmpcuoeh7cp/logs/detailed_2026-11-03.log",
+    "when": null
+  },
+  {
+    "handler": "RotatingFileHandler",
+    "file": "/tmp/tmpcuoeh7cp/logs/error_2026-11-03.log",
+    "when": null
+  }
+]

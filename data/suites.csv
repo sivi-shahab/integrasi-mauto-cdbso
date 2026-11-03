@@ -7,7 +7,8 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","7","TC-15 Tidak ada data (nik tidak terdaftar) mengembalikan sukses dengan data kosong","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","70","TC-26 Response list tidak memuat kolom gambar base64 (§9.4)","","Tue Nov 03 09:28:10 UTC 2026","failed","Tue Nov 03 09:28:10 UTC 2026","","","",""
+"Threshold k6 `http_req_failed: rate<0.01` pada skenario **load** (Internal UAT · before fix). Sumber: `summary_load_20261103_043349.json`.","300144","TC-17 Error HTTP di bawah 1% [load · Internal UAT · before fix]","","Tue Nov 03 04:28:49 UTC 2026","passed","Tue Nov 03 04:33:49 UTC 2026","","k6 load","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -16,7 +17,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","12","TC-11 limit di atas batas maksimum tetap diterima","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","24","TC-01 Data ditemukan untuk nik 3204375008970013 pada apply_date 24092026","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -25,7 +26,9 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","6","TC-12 Nilai paging negatif ditolak (limit negatif)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","343","TC-23 Ukuran pool dapat diatur lewat environment variable (§9.2)","","Tue Nov 03 09:28:09 UTC 2026","failed","Tue Nov 03 09:28:09 UTC 2026","","","",""
+"Threshold k6 `checks: rate>0.99` pada skenario **smoke** (CI (GitHub Actions)). Sumber: `summary_smoke_20261103_092842.json`.","30106","TC-21 Check k6 lulus di atas 99% [smoke · CI (GitHub Actions)]","","Tue Nov 03 09:28:12 UTC 2026","passed","Tue Nov 03 09:28:42 UTC 2026","","k6 smoke","",""
+"Threshold k6 `http_req_duration: p(95)<1000` pada skenario **load** (Internal UAT · before fix). Sumber: `summary_load_20261103_043349.json`.","300144","TC-18 Latency p95 di bawah 1000 ms [load · Internal UAT · before fix]","","Tue Nov 03 04:28:49 UTC 2026","passed","Tue Nov 03 04:33:49 UTC 2026","","k6 load","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -34,7 +37,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","8","TC-02 Response memuat field utama","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","7","TC-15 Tidak ada data (nik tidak terdaftar) mengembalikan sukses dengan data kosong","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -43,7 +46,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-14 Request hanya dengan cc_reff (tanpa nik) ditolak","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","83","TC-04 Filter account_number mempersempit hasil","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -52,8 +55,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","18","TC-04 Filter cc_reff mempersempit hasil","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
-"Threshold k6 `http_req_duration: p(99)<2000` pada skenario **load** (Internal UAT). Sumber: `summary_load_20261103_043349.json`.","300144","TC-19 Latency p99 di bawah 2000 ms [load · Internal UAT]","","Tue Nov 03 04:28:49 UTC 2026","passed","Tue Nov 03 04:33:49 UTC 2026","","k6 load","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (tanpa apply_date)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -62,7 +64,8 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-12 Nilai paging negatif ditolak (offset negatif)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","8","TC-09 offset melebihi total data menghasilkan data kosong","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
+"Threshold k6 `http_req_duration: p(95)<1000` pada skenario **smoke** (CI (GitHub Actions)). Sumber: `summary_smoke_20261103_092842.json`.","30106","TC-18 Latency p95 di bawah 1000 ms [smoke · CI (GitHub Actions)]","","Tue Nov 03 09:28:12 UTC 2026","passed","Tue Nov 03 09:28:42 UTC 2026","","k6 smoke","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -71,7 +74,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","9","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 09032026","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","368","TC-22 Connection pool database dikonfigurasi eksplisit (§9.1)","","Tue Nov 03 09:28:09 UTC 2026","failed","Tue Nov 03 09:28:09 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -80,7 +83,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","9","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 31102025","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","81","TC-04 Filter cc_reff mempersempit hasil","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -89,7 +92,8 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-16 Request dengan API key salah ditolak","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","17","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 30012026","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
+"Threshold k6 `http_req_duration: p(99)<2000` pada skenario **load** (Internal UAT · before fix). Sumber: `summary_load_20261103_043349.json`.","300144","TC-19 Latency p99 di bawah 2000 ms [load · Internal UAT · before fix]","","Tue Nov 03 04:28:49 UTC 2026","passed","Tue Nov 03 04:33:49 UTC 2026","","k6 load","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -98,7 +102,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","19","TC-04 Filter branch_code mempersempit hasil","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","64","TC-27 Ukuran response per baris di bawah 20 KB (§9.4)","","Tue Nov 03 09:28:10 UTC 2026","failed","Tue Nov 03 09:28:10 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -107,9 +111,8 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","21","TC-10 limit=0 memakai default limit (100)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
-"Threshold k6 `http_req_duration: p(99)<2000` pada skenario **smoke** (CI (GitHub Actions)). Sumber: `summary_smoke_20261103_091938.json`.","30014","TC-19 Latency p99 di bawah 2000 ms [smoke · CI (GitHub Actions)]","","Tue Nov 03 09:19:08 UTC 2026","passed","Tue Nov 03 09:19:38 UTC 2026","","k6 smoke","",""
-"Threshold k6 `http_req_duration: p(95)<1000` pada skenario **load** (Internal UAT). Sumber: `summary_load_20261103_043349.json`.","300144","TC-18 Latency p95 di bawah 1000 ms [load · Internal UAT]","","Tue Nov 03 04:28:49 UTC 2026","passed","Tue Nov 03 04:33:49 UTC 2026","","k6 load","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-16 Request dengan API key kosong ditolak","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
+"Threshold k6 `business_success: rate>0.99` pada skenario **load** (Internal UAT · before fix). Sumber: `summary_load_20261103_043349.json`.","300144","TC-20 responseCode 00 di atas 99% [load · Internal UAT · before fix]","","Tue Nov 03 04:28:49 UTC 2026","passed","Tue Nov 03 04:33:49 UTC 2026","","k6 load","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -118,7 +121,8 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (tanpa apply_date)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","154","TC-08 Paging per halaman tidak duplikat dan tidak ada yang hilang","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
+"Threshold k6 `http_req_duration: p(99)<2000` pada skenario **smoke** (CI (GitHub Actions)). Sumber: `summary_smoke_20261103_092842.json`.","30106","TC-19 Latency p99 di bawah 2000 ms [smoke · CI (GitHub Actions)]","","Tue Nov 03 09:28:12 UTC 2026","passed","Tue Nov 03 09:28:42 UTC 2026","","k6 smoke","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -127,7 +131,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","9","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 30012026","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-14 Request hanya dengan cc_reff (tanpa nik) ditolak","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -136,7 +140,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","6","TC-09 offset melebihi total data menghasilkan data kosong","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (apply_date tidak valid)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -145,7 +149,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","13","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 29092025","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (apply_date kosong)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -154,8 +158,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (apply_date format yyyy-mm-dd)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
-"Threshold k6 `http_req_duration: p(95)<1000` pada skenario **smoke** (CI (GitHub Actions)). Sumber: `summary_smoke_20261103_091938.json`.","30014","TC-18 Latency p95 di bawah 1000 ms [smoke · CI (GitHub Actions)]","","Tue Nov 03 09:19:08 UTC 2026","passed","Tue Nov 03 09:19:38 UTC 2026","","k6 smoke","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-12 Nilai paging negatif ditolak (offset negatif)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -164,7 +167,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (tanpa nik dan cc_reff)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","18","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 13022026","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -173,7 +176,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (limit bukan angka)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","7","TC-05 Filter yang tidak cocok menghasilkan data kosong","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -182,7 +185,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","9","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 13022026","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","39","TC-25 File log dirotasi harian (§9.3)","","Tue Nov 03 09:28:10 UTC 2026","failed","Tue Nov 03 09:28:10 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -191,7 +194,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (apply_date kosong)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","141","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 12112025","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -200,7 +203,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (apply_date placeholder)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","75","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 29092025","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -209,8 +212,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","10","TC-01 Data ditemukan untuk nik 3204375008970013 pada apply_date 24092026","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
-"Threshold k6 `http_req_failed: rate<0.01` pada skenario **load** (Internal UAT). Sumber: `summary_load_20261103_043349.json`.","300144","TC-17 Error HTTP di bawah 1% [load · Internal UAT]","","Tue Nov 03 04:28:49 UTC 2026","passed","Tue Nov 03 04:33:49 UTC 2026","","k6 load","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (nik placeholder)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -219,9 +221,9 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","6","TC-07 limit=1 mengembalikan tepat 1 baris","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
-"Threshold k6 `http_req_failed: rate<0.01` pada skenario **smoke** (CI (GitHub Actions)). Sumber: `summary_smoke_20261103_091938.json`.","30014","TC-17 Error HTTP di bawah 1% [smoke · CI (GitHub Actions)]","","Tue Nov 03 09:19:08 UTC 2026","passed","Tue Nov 03 09:19:38 UTC 2026","","k6 smoke","",""
-"Threshold k6 `business_success: rate>0.99` pada skenario **load** (Internal UAT). Sumber: `summary_load_20261103_043349.json`.","300144","TC-20 responseCode 00 di atas 99% [load · Internal UAT]","","Tue Nov 03 04:28:49 UTC 2026","passed","Tue Nov 03 04:33:49 UTC 2026","","k6 load","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","17","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 02102025","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
+"Threshold k6 `checks: rate>0.99` pada skenario **load** (Internal UAT · before fix). Sumber: `summary_load_20261103_043349.json`.","300144","TC-21 Check k6 lulus di atas 99% [load · Internal UAT · before fix]","","Tue Nov 03 04:28:49 UTC 2026","passed","Tue Nov 03 04:33:49 UTC 2026","","k6 load","",""
+"Threshold k6 `http_req_failed: rate<0.01` pada skenario **smoke** (CI (GitHub Actions)). Sumber: `summary_smoke_20261103_092842.json`.","30106","TC-17 Error HTTP di bawah 1% [smoke · CI (GitHub Actions)]","","Tue Nov 03 09:28:12 UTC 2026","passed","Tue Nov 03 09:28:42 UTC 2026","","k6 smoke","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -230,8 +232,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","116","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 12112025","","Tue Nov 03 09:19:05 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
-"Threshold k6 `checks: rate>0.99` pada skenario **load** (Internal UAT). Sumber: `summary_load_20261103_043349.json`.","300144","TC-21 Check k6 lulus di atas 99% [load · Internal UAT]","","Tue Nov 03 04:28:49 UTC 2026","passed","Tue Nov 03 04:33:49 UTC 2026","","k6 load","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","17","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 31102025","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -240,7 +241,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","9","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 27022026","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","4","TC-13 Request tidak valid ditolak (limit bukan angka)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -249,7 +250,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","6","TC-05 Filter yang tidak cocok menghasilkan data kosong","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","23","TC-02 Response memuat field utama","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -258,7 +259,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","18","TC-04 Filter account_number mempersempit hasil","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","12","TC-07 limit=1 mengembalikan tepat 1 baris","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -267,7 +268,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","6","TC-15 Tidak ada data (tanggal tanpa pengajuan) mengembalikan sukses dengan data kosong","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","569","TC-24 Log aplikasi level INFO tidak memuat NIK (§9.3)","","Tue Nov 03 09:28:09 UTC 2026","failed","Tue Nov 03 09:28:10 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -276,7 +277,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","9","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 02102025","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","111","TC-10 limit=0 memakai default limit (100)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -285,7 +286,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-16 Request dengan API key tanpa ditolak","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","12","TC-13 Request tidak valid ditolak (apply_date placeholder)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -294,7 +295,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","21","TC-06 Placeholder Swagger ""string"" pada filter diabaikan","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","22","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 27022026","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -303,7 +304,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (nik placeholder)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","23","TC-03 Spasi di awal/akhir nik diabaikan","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -312,7 +313,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (apply_date tidak valid)","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","6","TC-15 Tidak ada data (tanggal tanpa pengajuan) mengembalikan sukses dengan data kosong","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -321,7 +322,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","29","TC-08 Paging per halaman tidak duplikat dan tidak ada yang hilang","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","22","TC-01 Data ditemukan untuk nik 3201133107990002 pada apply_date 09032026","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:07 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -330,9 +331,7 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-16 Request dengan API key kosong ditolak","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
-"Threshold k6 `checks: rate>0.99` pada skenario **smoke** (CI (GitHub Actions)). Sumber: `summary_smoke_20261103_091938.json`.","30014","TC-21 Check k6 lulus di atas 99% [smoke · CI (GitHub Actions)]","","Tue Nov 03 09:19:08 UTC 2026","passed","Tue Nov 03 09:19:38 UTC 2026","","k6 smoke","",""
-"Threshold k6 `business_success: rate>0.99` pada skenario **smoke** (CI (GitHub Actions)). Sumber: `summary_smoke_20261103_091938.json`.","30014","TC-20 responseCode 00 di atas 99% [smoke · CI (GitHub Actions)]","","Tue Nov 03 09:19:08 UTC 2026","passed","Tue Nov 03 09:19:38 UTC 2026","","k6 smoke","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","60","TC-11 limit di atas batas maksimum tetap diterima","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
 "Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
 dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
 
@@ -341,4 +340,59 @@ Konvensi:
   - Scenario  = Test Case (TC-xx)
   - Tag @severity:<level> dipetakan ke severity Allure
   - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
-    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","8","TC-03 Spasi di awal/akhir nik diabaikan","","Tue Nov 03 09:19:06 UTC 2026","passed","Tue Nov 03 09:19:06 UTC 2026","","","",""
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-16 Request dengan API key salah ditolak","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
+"Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
+dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
+
+Konvensi:
+  - Rule      = Test Scenario (TS-xx)
+  - Scenario  = Test Case (TC-xx)
+  - Tag @severity:<level> dipetakan ke severity Allure
+  - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-12 Nilai paging negatif ditolak (limit negatif)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
+"Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
+dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
+
+Konvensi:
+  - Rule      = Test Scenario (TS-xx)
+  - Scenario  = Test Case (TC-xx)
+  - Tag @severity:<level> dipetakan ke severity Allure
+  - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (apply_date format yyyy-mm-dd)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
+"Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
+dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
+
+Konvensi:
+  - Rule      = Test Scenario (TS-xx)
+  - Scenario  = Test Case (TC-xx)
+  - Tag @severity:<level> dipetakan ke severity Allure
+  - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-13 Request tidak valid ditolak (tanpa nik dan cc_reff)","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
+"Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
+dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
+
+Konvensi:
+  - Rule      = Test Scenario (TS-xx)
+  - Scenario  = Test Case (TC-xx)
+  - Tag @severity:<level> dipetakan ke severity Allure
+  - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","119","TC-06 Placeholder Swagger ""string"" pada filter diabaikan","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
+"Threshold k6 `business_success: rate>0.99` pada skenario **smoke** (CI (GitHub Actions)). Sumber: `summary_smoke_20261103_092842.json`.","30106","TC-20 responseCode 00 di atas 99% [smoke · CI (GitHub Actions)]","","Tue Nov 03 09:28:12 UTC 2026","passed","Tue Nov 03 09:28:42 UTC 2026","","k6 smoke","",""
+"Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
+dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
+
+Konvensi:
+  - Rule      = Test Scenario (TS-xx)
+  - Scenario  = Test Case (TC-xx)
+  - Tag @severity:<level> dipetakan ke severity Allure
+  - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","93","TC-04 Filter branch_code mempersempit hasil","","Tue Nov 03 09:28:07 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""
+"Mengambil data report M-Auto CDSBO berdasarkan nik dan apply_date (ddmmyyyy),
+dengan filter opsional cc_reff, branch_code, account_number serta paging limit/offset.
+
+Konvensi:
+  - Rule      = Test Scenario (TS-xx)
+  - Scenario  = Test Case (TC-xx)
+  - Tag @severity:<level> dipetakan ke severity Allure
+  - Tag @needs-confirmation = expected result mengikuti perilaku service saat ini,
+    perlu konfirmasi bisnis apakah memang itu yang diharapkan.","5","TC-16 Request dengan API key tanpa ditolak","","Tue Nov 03 09:28:08 UTC 2026","passed","Tue Nov 03 09:28:08 UTC 2026","","","",""

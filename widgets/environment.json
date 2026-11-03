@@ -1,1 +1,1 @@
-[{"values":["main"],"name":"Branch"},{"values":["f49252ec06e8d74e44389fefe734aeb6fa0d50f8"],"name":"Commit"},{"values":["postgres:16 (data sintetis, tests/functional/ci/seed.py)"],"name":"Database"},{"values":["3.13.18"],"name":"Python"}]
+[{"values":["main"],"name":"Branch"},{"values":["146601dbf34a6e537eefdbe0ecede7284c641753"],"name":"Commit"},{"values":["postgres:16 (data sintetis, tests/functional/ci/seed.py)"],"name":"Database"},{"values":["3.13.18"],"name":"Python"}]

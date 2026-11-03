@@ -1,0 +1,9 @@
+{
+  "http_status": 200,
+  "responseCode": "40",
+  "responseDescription": "nik is required.",
+  "row_count": null,
+  "size_kb": 0.1,
+  "elapsed_ms": 1.1,
+  "rows": []
+}
