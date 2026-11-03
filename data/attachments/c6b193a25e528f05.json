@@ -1,0 +1,30 @@
+{
+  "http_status": 200,
+  "responseCode": "00",
+  "responseDescription": "Success",
+  "row_count": 4,
+  "size_kb": 22.1,
+  "elapsed_ms": 37.6,
+  "rows": [
+    {
+      "application_id": "APP-CI-00013",
+      "apply_date": "2025-11-12T09:00:00",
+      "status": "APPROVED"
+    },
+    {
+      "application_id": "APP-CI-00014",
+      "apply_date": "2025-11-12T09:00:00",
+      "status": "REJECTED"
+    },
+    {
+      "application_id": "APP-CI-00015",
+      "apply_date": "2025-11-12T09:00:00",
+      "status": "PENDING"
+    },
+    {
+      "application_id": "APP-CI-00016",
+      "apply_date": "2025-11-12T09:15:00",
+      "status": "APPROVED"
+    }
+  ]
+}

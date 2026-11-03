@@ -1,0 +1,20 @@
+{
+  "scenario": "smoke",
+  "duration_s": 30.0,
+  "vus_max": 1,
+  "http_reqs": 6356,
+  "rps": 211.77,
+  "latency_ms": {
+    "min": 3.3,
+    "med": 3.8,
+    "p(90)": 7.6,
+    "p(95)": 7.7,
+    "p(99)": 8.0,
+    "max": 14.1,
+    "avg": 4.2
+  },
+  "http_req_failed_pct": 0,
+  "business_success_pct": 100,
+  "avg_response_kb": 20.6,
+  "rows_returned_avg": 3.71
+}
