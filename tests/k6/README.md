@@ -5,9 +5,8 @@ dokumen ini sebelum menjalankan test, terutama bagian
 [Sebelum Menjalankan](#5-sebelum-menjalankan-checklist) dan
 [Risiko & Hal yang Perlu Diperhatikan](#9-risiko--hal-yang-perlu-diperhatikan).
 
-> **Status:** script belum pernah dijalankan (k6 belum terpasang di server
-> development saat script dibuat). Jalankan skenario `smoke` terlebih dahulu
-> untuk memastikan script berfungsi.
+> **Status:** script sudah dijalankan pada 2026-11-03 (smoke, load, stress). Hasil: [`docs/load-test/2026-11-03/`](../../docs/load-test/2026-11-03/)
+> (`REPORT.md`, `STRESS-BEFORE.md`). Tetap jalankan `smoke` terlebih dahulu di environment baru.
 
 ---
 

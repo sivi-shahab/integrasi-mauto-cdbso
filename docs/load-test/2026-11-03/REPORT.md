@@ -158,3 +158,5 @@ REPORT_MAUTO_BASE_URL=http://localhost:8013 uv run pytest
 | `k6_load_baseline_main.txt` | Ringkasan k6 baseline (`main`) |
 | `k6_load_fix.txt` | Ringkasan k6 versi fix |
 | `resource_fix.csv` | CPU % dan RSS service versi fix, per 5 detik |
+| `STRESS-BEFORE.md` | Stress test 20 → 300 VU sebelum perbaikan isu §9 (+ `k6_stress_before*.{txt,csv}`, `resource_stress_before.csv`) |
+| `BASELINE-ISSUES.md` | Bukti isu README k6 §9 sebelum perbaikan |

@@ -11,7 +11,7 @@ Bukti tersedia di tiga tempat:
 | Bukti | Before (sekarang) | After (setelah fix) |
 |-------|-------------------|---------------------|
 | Allure TS-08 (TC-22 – TC-27) | 6 test case **gagal** | test case lulus, tab *History* menunjukkan gagal → lulus |
-| Allure TS-07 k6 internal | `Internal UAT · before fix` (`tests/k6/published/before/`) | `Internal UAT · after fix` (`tests/k6/published/after/`) |
+| Allure TS-07 k6 internal (load & stress) | `Internal UAT · before fix` (`tests/k6/published/before/`) | `Internal UAT · after fix` (`tests/k6/published/after/`) |
 | Dokumen ini | bagian Before | bagian After |
 
 Report: <https://sivi-shahab.github.io/integrasi-mauto-cdbso/>
@@ -81,8 +81,19 @@ Sumber: `tests/k6/published/before/summary_load_20261103_043349.json`. Skenario 
 Perbandingan di CI (k6 `smoke`, 1 VU, data dummy): data kecil ±100 req/s → data berukuran UAT **21 req/s**,
 menunjukkan ukuran response adalah faktor dominan.
 
-> Stress test (`SCENARIO=stress`) sebelum fix belum dijalankan. Jalankan di server internal dan simpan ke
-> `tests/k6/published/before/` **sebelum** mulai perbaikan agar ada pembanding (lihat README k6 §13).
+### k6 stress test internal (TS-07, `Internal UAT · before fix`)
+
+Laporan lengkap: [STRESS-BEFORE.md](STRESS-BEFORE.md). Sumber: `tests/k6/published/before/summary_stress_20261103_094255.json`.
+Skenario `stress` (20 → 300 VU, 11 menit), konfigurasi sama dengan load test.
+
+| Metrik | Nilai |
+|--------|-------|
+| Throughput | **28,55 req/s**, flat dari 20 sampai 300 VU (jenuh sejak ±20 VU) |
+| Latency p95 / p99 / max | **9.602 / 10.213** / 11.921 ms; p95 > 1 dtk mulai ±27 VU |
+| Error HTTP / business | 0% / 0% (tidak ada code `99`) |
+| Data diterima | 63,3 GB (98,2 MB/s, 3,6 MB/response) |
+| CPU / RAM service | ±110% (±1,1 core) / maks 1.991 MB |
+| Threshold | **GAGAL**: p95 < 1000 ms (TC-18) dan p99 < 2000 ms (TC-19) |
 
 ## After (setelah perbaikan)
 
@@ -102,4 +113,4 @@ menunjukkan ukuran response adalah faktor dominan.
 | §9.4 | TC-26 | gagal (3 kolom gambar di response) | | |
 | §9.4 | TC-27 | gagal (561 KB/baris) | | |
 | k6 load | TS-07 | 26,5 req/s, p95 997,6 ms | | |
-| k6 stress | TS-07 | *belum dijalankan* | | |
+| k6 stress | TS-07 | 28,6 req/s, p95 9.602 ms, RAM 2 GB, 0% error ([STRESS-BEFORE.md](STRESS-BEFORE.md)) | | |

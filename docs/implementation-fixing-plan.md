@@ -26,6 +26,7 @@ Allure **TS-08** (TC-22 – TC-27, tag `@known_issue`), dan GitHub Issues dari [
 Fix yang sudah masuk `main`: paging tidak stabil (tiebreaker `ctid`, commit `ddb2345`) dan
 functional test BDD + Allure (commit `3abf776`), kini berjalan otomatis di GitHub Actions.
 
+Hasil stress test before fix ([STRESS-BEFORE.md](load-test/2026-11-03/STRESS-BEFORE.md)): throughput flat ±29 req/s dari 20 sampai 300 VU, p95 9,6 dtk pada 300 VU, RAM service ±2 GB, 0 error.
 Hasil load test (20 VU): service jenuh di ±26 req/s, bottleneck **CPU 1 proses uvicorn** dan
 **serialisasi response besar**. Pool DB belum menjadi bottleneck pada beban ini.
 
