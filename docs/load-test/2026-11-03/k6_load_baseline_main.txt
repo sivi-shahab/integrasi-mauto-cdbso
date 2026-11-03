@@ -1,0 +1,38 @@
+======================================================================
+ k6 summary — POST /v1/report_mauto
+======================================================================
+ Scenario   : load
+ Target     : http://localhost:8914/v1/report_mauto
+ Data rows  : 10 (./data.csv)
+ Limit      : 100
+ Selesai    : Tue Nov 03 2026 04:26:22 GMT+0000 (UTC)
+ Durasi     : 300.1s
+
+--- Checks -----------------------------------------------------------
+ ✓ status is 200          100.00% (7944 ✓ / 0 ✗)
+ ✓ body is JSON           100.00% (7944 ✓ / 0 ✗)
+ ✓ responseCode is 00     100.00% (7944 ✓ / 0 ✗)
+ ✓ data is array          100.00% (7944 ✓ / 0 ✗)
+
+--- Metrics ----------------------------------------------------------
+ http_reqs................... 7945 (26.47/s)
+ iterations.................. 7944 (26.47/s)
+ http_req_duration........... avg=569.63ms min=10.94ms med=581.12ms p(90)=886.36ms p(95)=979.38ms p(99)=1190.98ms max=1915.22ms
+ http_req_waiting............ avg=557.51ms min=10.43ms med=570.62ms p(90)=862.67ms p(95)=952.22ms p(99)=1153.62ms max=1852.16ms
+ http_req_failed............. 0.00% (0 ✓ / 7945 ✗)
+ business_success............ 100.00% (7944 ✓ / 0 ✗)
+ checks...................... 100.00% (31776 ✓ / 0 ✗)
+ rows_returned............... avg=6.18 min=1.00 med=6.00 p(90)=8.00 p(95)=20.00 p(99)=20.00 max=20.00
+ data_received............... 26.71 GB (91.13 MB/s)
+ data_sent................... 2.24 MB (7.65 kB/s)
+ vus_max..................... 20 (min=20 max=20)
+
+--- Thresholds -------------------------------------------------------
+ ✓ business_success rate>0.99
+ ✓ http_req_duration p(95)<1000
+ ✓ http_req_duration p(99)<2000
+ ✓ http_req_failed rate<0.01
+ ✓ checks rate>0.99
+
+ HASIL: LULUS — semua threshold terpenuhi
+======================================================================
