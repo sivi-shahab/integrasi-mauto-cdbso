@@ -54,6 +54,32 @@ allure generate tests/functional/allure-results -o tests/functional/allure-repor
 allure open tests/functional/allure-report
 ```
 
+## CI (GitHub Actions)
+
+Workflow [`.github/workflows/functional-test.yml`](../../.github/workflows/functional-test.yml) berjalan
+pada push ke `main`, pull request, dan manual (`workflow_dispatch`):
+
+1. Menjalankan Postgres 16 sebagai service container.
+2. Membuat tabel dari [`ci/schema.sql`](ci/schema.sql) (struktur tabel UAT, tanpa data) dan mengisi
+   data sintetis via [`ci/seed.py`](ci/seed.py). Tidak terhubung ke DB internal.
+3. Menjalankan service (uvicorn) lalu `pytest`.
+4. Membuat Allure report (dengan trend dari run sebelumnya), upload sebagai artifact, dan
+   untuk `main` mempublikasikannya ke GitHub Pages (branch `gh-pages`):
+   <https://sivi-shahab.github.io/integrasi-mauto-cdbso/>
+
+Setup satu kali: **Settings → Pages → Source: Deploy from a branch → `gh-pages` / root**
+(branch `gh-pages` dibuat otomatis pada run pertama di `main`).
+
+Menjalankan setup CI secara lokal:
+
+```bash
+docker run -d --rm --name pg-ci -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=report_mauto -p 127.0.0.1:55433:5432 postgres:16
+export POSTGRES_HOST=127.0.0.1 POSTGRES_PORT=55433 POSTGRES_USER=postgres POSTGRES_PASSWORD=postgres POSTGRES_DB=report_mauto
+uv run python tests/functional/ci/seed.py
+```
+
+Jika skenario baru membutuhkan data lain, tambahkan kombinasi di `COMBOS` pada `ci/seed.py`.
+
 ## Catatan keamanan data
 
 Report **tidak** melampirkan body response utuh, karena berisi data pribadi nasabah dan foto

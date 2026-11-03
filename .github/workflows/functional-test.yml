@@ -1,0 +1,156 @@
+name: Functional Test (BDD + Allure)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write   # push report ke branch gh-pages
+
+concurrency:
+  group: functional-test-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ALLURE_VERSION: "2.32.0"
+  # Konfigurasi service. Postgres hanya hidup di job ini dan berisi data sintetis.
+  POSTGRES_HOST: 127.0.0.1
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: report_mauto
+  API_KEY_NAME: X-API-KEY
+  VALID_API_KEYS: ci-functional-test-key
+  REPORT_MAUTO_API_KEY: ci-functional-test-key
+  REPORT_MAUTO_BASE_URL: http://127.0.0.1:8013
+
+jobs:
+  functional-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: report_mauto
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --dev --frozen
+
+      - name: Seed database (data sintetis)
+        run: uv run python tests/functional/ci/seed.py
+
+      - name: Start service
+        run: |
+          nohup uv run uvicorn main:app --host 127.0.0.1 --port 8013 > uvicorn.log 2>&1 &
+          for i in $(seq 30); do
+            curl -sf -o /dev/null "$REPORT_MAUTO_BASE_URL/docs" && exit 0
+            sleep 1
+          done
+          echo "Service tidak start" && cat uvicorn.log && exit 1
+
+      - name: Run pytest-bdd
+        id: pytest
+        continue-on-error: true
+        run: uv run pytest
+
+      - name: Service log
+        if: always()
+        run: tail -n 100 uvicorn.log || true
+
+      # ---------------- Allure report ----------------
+      - uses: actions/setup-java@v4
+        if: always()
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Allure CLI
+        if: always()
+        run: |
+          curl -sSL -o allure.tgz \
+            "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.tgz"
+          tar -xzf allure.tgz
+          echo "$PWD/allure-${ALLURE_VERSION}/bin" >> "$GITHUB_PATH"
+
+      - name: Ambil history report sebelumnya (trend)
+        if: always()
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Generate Allure report
+        if: always()
+        run: |
+          RESULTS=tests/functional/allure-results
+          mkdir -p "$RESULTS"
+          if [ -d gh-pages/history ]; then cp -r gh-pages/history "$RESULTS/history"; fi
+          cat > "$RESULTS/executor.json" <<EOF
+          {
+            "name": "GitHub Actions",
+            "type": "github",
+            "buildName": "${{ github.workflow }} #${{ github.run_number }}",
+            "buildOrder": ${{ github.run_number }},
+            "buildUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+            "reportUrl": "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          }
+          EOF
+          cat > "$RESULTS/environment.properties" <<EOF
+          Branch=${{ github.head_ref || github.ref_name }}
+          Commit=${{ github.sha }}
+          Database=postgres:16 (data sintetis, tests/functional/ci/seed.py)
+          Python=$(uv run python --version | cut -d' ' -f2)
+          EOF
+          allure generate "$RESULTS" -o allure-report --clean
+
+      - name: Upload report (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+          retention-days: 14
+
+      - name: Publish ke GitHub Pages
+        if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-report
+          commit_message: "allure report: ${{ github.sha }}"
+
+      - name: Job summary
+        if: always()
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, pathlib
+          s = json.loads(pathlib.Path("allure-report/widgets/summary.json").read_text())["statistic"]
+          print("### Functional Test /v1/report_mauto\n")
+          print("| Total | Passed | Failed | Broken | Skipped |\n|---|---|---|---|---|")
+          print(f"| {s['total']} | {s['passed']} | {s['failed']} | {s['broken']} | {s['skipped']} |")
+          EOF
+          if [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Report: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Gagalkan job jika test gagal
+        if: steps.pytest.outcome == 'failure'
+        run: exit 1
