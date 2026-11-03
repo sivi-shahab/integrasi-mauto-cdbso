@@ -1,0 +1,9 @@
+{
+  "http_status": 200,
+  "responseCode": "00",
+  "responseDescription": "Success",
+  "row_count": 0,
+  "size_kb": 0.1,
+  "elapsed_ms": 2.2,
+  "rows": []
+}
