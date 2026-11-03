@@ -50,7 +50,7 @@ tests/k6/
 ├── data.ci.csv             # data uji untuk GitHub Actions (cocok dengan seed tests/functional/ci)
 ├── k6_to_allure.py         # konversi summary k6 -> Allure results (TS-07)
 ├── .gitignore              # mengabaikan data.csv (berisi NIK)
-├── published/              # summary run internal yang ditampilkan di Allure report
+├── published/              # summary run internal untuk Allure: before/ (sebelum fix) & after/ (sesudah fix)
 └── results/                # output handleSummary (isi di-ignore git)
 ```
 
@@ -503,12 +503,20 @@ Ada dua sumber hasil:
 | Sumber | Skenario | Environment | Cara |
 |--------|----------|-------------|------|
 | GitHub Actions | `smoke` (default) / `load` (pilih via *Run workflow*) | Postgres + data sintetis (`data.ci.csv`) | Otomatis tiap push ke `main` / PR |
-| Server internal | `stress`, `load`, `spike`, `soak` | DB UAT | Manual, lalu dipublikasikan lewat folder `published/` |
+| Server internal | `stress`, `load`, `spike`, `soak` | DB UAT | Manual, lalu dipublikasikan lewat `published/before/` atau `published/after/` |
 
 Di GitHub Actions hanya `smoke`/`load` ringan sebagai deteksi regresi: runner hanya 2–4 core,
 k6 dan service berbagi CPU, dan datanya kecil — angka di sana tidak sebanding dengan server asli.
 
-**Mempublikasikan hasil stress test internal ke Allure:**
+**Mempublikasikan hasil stress test internal ke Allure (before / after fix):**
+
+Hasil run internal disimpan per fase agar kondisi sebelum dan sesudah perbaikan
+(`docs/implementation-fixing-plan.md`) bisa dibandingkan di report yang sama:
+
+| Folder              | Label di Allure              | Isi                                        |
+|---------------------|------------------------------|--------------------------------------------|
+| `published/before/` | `Internal UAT · before fix`  | Run sebelum perbaikan isu §9 (baseline)    |
+| `published/after/`  | `Internal UAT · after fix`   | Run setelah perbaikan, skenario yang sama  |
 
 ```bash
 # 1. jalankan stress test di server internal (lihat bagian 8)
@@ -516,16 +524,18 @@ k6 run tests/k6/report_mauto_stress.js -e SCENARIO=stress -e DATA_FILE=./data.cs
 
 # 2. (opsional) cek tampilan di Allure lokal
 python3 tests/k6/k6_to_allure.py tests/k6/results/summary_stress_<timestamp>.json \
-  --out tests/functional/allure-results --env "Internal UAT"
+  --out tests/functional/allure-results --env "Internal UAT · before fix"
 
-# 3. salin summary ke published/ lalu commit & push
-cp tests/k6/results/summary_stress_<timestamp>.{json,txt} tests/k6/published/
-git add tests/k6/published && git commit -m "perf: hasil stress test <tanggal>" && git push
+# 3. salin summary ke folder fase (before = sebelum fix, after = sesudah fix), commit & push
+cp tests/k6/results/summary_stress_<timestamp>.{json,txt} tests/k6/published/before/
+git add tests/k6/published && git commit -m "perf: hasil stress test <tanggal> (before fix)" && git push
 ```
 
-Workflow selalu menyertakan isi `published/` dengan label `Internal UAT`. Hanya summary
-**terbaru per skenario** yang ditampilkan (berdasarkan timestamp di nama file). Pastikan file
-tidak berisi data sensitif sebelum di-commit; summary k6 hanya berisi metrik agregat.
+Workflow menyertakan kedua folder di setiap run. Di tiap folder hanya summary **terbaru per
+skenario** yang ditampilkan (berdasarkan timestamp di nama file). Agar perbandingan adil, jalankan
+before dan after dengan skenario, data uji, jumlah worker, dan server yang sama, lalu catat
+konfigurasinya. Summary k6 hanya berisi metrik agregat; tetap periksa sebelum di-commit karena
+repository publik.
 
 ## 14. Monitoring Selama Test
 

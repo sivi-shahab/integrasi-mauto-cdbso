@@ -71,10 +71,17 @@ jobs:
           done
           echo "Service tidak start" && cat uvicorn.log && exit 1
 
-      - name: Run pytest-bdd
+      - name: Run pytest-bdd (gate)
         id: pytest
         continue-on-error: true
-        run: uv run pytest
+        run: uv run pytest -m "not known_issue"
+
+      # TS-08: isu README k6 §9 yang belum diperbaiki. Hasil tetap masuk Allure
+      # (bukti before/after) tetapi tidak menggagalkan pipeline.
+      - name: Run pytest-bdd (known issue, TS-08)
+        if: always()
+        continue-on-error: true
+        run: uv run pytest -m known_issue
 
       # ---------------- TS-07 Performa (k6) ----------------
       - name: Run k6 (${{ env.K6_SCENARIO }})
@@ -93,9 +100,12 @@ jobs:
         run: |
           python3 tests/k6/k6_to_allure.py tests/k6/results \
             --out tests/functional/allure-results --env "CI (GitHub Actions)"
-          # hasil load/stress test internal yang dipublikasikan (summary terbaru per skenario)
-          python3 tests/k6/k6_to_allure.py tests/k6/published \
-            --out tests/functional/allure-results --env "Internal UAT"
+          # hasil load/stress test internal (summary terbaru per skenario per fase)
+          for phase in before after; do
+            [ -d "tests/k6/published/$phase" ] || continue
+            python3 tests/k6/k6_to_allure.py "tests/k6/published/$phase" \
+              --out tests/functional/allure-results --env "Internal UAT · $phase fix"
+          done
 
       - name: Service log
         if: always()

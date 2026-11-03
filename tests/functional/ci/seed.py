@@ -2,7 +2,9 @@
 
 Membuat tabel (ci/schema.sql) lalu mengisi baris dummy yang memenuhi kebutuhan
 features/report_mauto.feature. Tidak ada data asli; foto selfie/KTP diganti
-string base64 pendek.
+string base64 dummy dengan ukuran meniru rata-rata DB UAT (2026-11-03):
+request_base64_ktp ~375 KB, profile_pic ~131 KB, selfie ~50 KB per baris, agar
+isu ukuran response (README k6 §9.4) juga terlihat di CI.
 
 Koneksi diambil dari env POSTGRES_HOST/PORT/USER/PASSWORD/DB (sama dengan service).
 
@@ -40,7 +42,17 @@ CC_REFFS = ["CCR-A01", "CCR-A02", "CCR-B01", "CCR-B02"]
 BRANCHES = ["101", "205"]
 ACCOUNTS = ["1000000001", "1000000002", None]
 STATUSES = ["APPROVED", "REJECTED", "PENDING"]
-FAKE_IMAGE = base64.b64encode(b"dummy-image-for-ci" * 4).decode()
+
+
+def _fake_image(kb):
+    """String base64 dummy berukuran ~kb KB."""
+    raw = (b"dummy-image-for-ci-" * (kb * 1024 // 19 + 1))[: kb * 1024 * 3 // 4]
+    return base64.b64encode(raw).decode()
+
+
+FAKE_KTP = _fake_image(375)
+FAKE_PROFILE = _fake_image(131)
+FAKE_SELFIE = _fake_image(50)
 
 
 def _rows():
@@ -63,8 +75,9 @@ def _rows():
                 "product_code": "CC01",
                 "inserted_at": apply_at,
                 "inserted_by": "ci-seed",
-                "selfie": FAKE_IMAGE,
-                "request_base64_ktp": FAKE_IMAGE,
+                "selfie": FAKE_SELFIE,
+                "profile_pic": FAKE_PROFILE,
+                "request_base64_ktp": FAKE_KTP,
             }
 
 

@@ -1,12 +1,21 @@
 """Step definitions untuk features/report_mauto.feature."""
 import json
+import os
+import subprocess
+import sys
+import tempfile
+import time
 from collections import Counter
+from pathlib import Path
 
 import allure
 import pytest
 from pytest_bdd import given, parsers, scenarios, then, when
 
 ENDPOINT = "/v1/report_mauto"
+ROOT = Path(__file__).resolve().parents[2]
+# Folder log service (service dijalankan dari root project -> logs/).
+LOG_DIR = Path(os.getenv("REPORT_MAUTO_LOG_DIR", ROOT / "logs"))
 
 scenarios("features/report_mauto.feature")
 
@@ -59,6 +68,39 @@ def _canon(row):
 
 def _to_iso(ddmmyyyy):
     return f"{ddmmyyyy[4:]}-{ddmmyyyy[2:4]}-{ddmmyyyy[:2]}"
+
+
+def _inspect(code, env=None, cwd=ROOT):
+    """Jalankan potongan Python di proses terpisah (pakai kode service) dan kembalikan JSON-nya.
+
+    Proses terpisah agar env override dan side effect (mis. setup_logging) tidak
+    memengaruhi proses test.
+    """
+    full_env = {**os.environ, "PYTHONPATH": str(ROOT), **(env or {})}
+    proc = subprocess.run([sys.executable, "-c", code], cwd=cwd, env=full_env,
+                          capture_output=True, text=True, timeout=60)
+    assert proc.returncode == 0, f"Inspeksi gagal: {proc.stderr[-1000:]}"
+    result = json.loads(proc.stdout.strip().splitlines()[-1])
+    allure.attach(json.dumps(result, indent=2), "konfigurasi service", allure.attachment_type.JSON)
+    return result
+
+
+_POOL_CODE = """
+import json
+from app.db.session import engine
+p = engine.pool
+print(json.dumps({"pool_class": type(p).__name__, "pool_size": p.size(),
+    "max_overflow": getattr(p, "_max_overflow", None), "pool_timeout": getattr(p, "_timeout", None),
+    "pool_pre_ping": bool(getattr(p, "_pre_ping", False)), "pool_recycle": getattr(p, "_recycle", None)}))
+"""
+
+_LOGGING_CODE = """
+import json, logging
+from app.core.logging import setup_logging
+setup_logging()
+print(json.dumps([{"handler": type(h).__name__, "file": getattr(h, "baseFilename", None),
+    "when": getattr(h, "when", None)} for h in logging.getLogger().handlers]))
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -137,6 +179,38 @@ def fetch_all_pages(client, ctx, limit):
             break
         offset += limit
     ctx["pages"] = pages
+
+
+@when("konfigurasi pool database service dibaca")
+def read_pool_config(ctx):
+    ctx["pool"] = _inspect(_POOL_CODE)
+
+
+@when(parsers.parse('konfigurasi pool database service dibaca dengan env "{pairs}"'))
+def read_pool_config_env(ctx, pairs):
+    env = dict(p.split("=", 1) for p in pairs.split(","))
+    ctx["pool"] = _inspect(_POOL_CODE, env=env)
+
+
+@when("konfigurasi logging service dibaca")
+def read_logging_config(ctx):
+    with tempfile.TemporaryDirectory() as tmp:  # setup_logging membuat folder logs/ di cwd
+        ctx["log_handlers"] = _inspect(_LOGGING_CODE, cwd=tmp)
+
+
+@when(parsers.parse('request dikirim sambil memantau log service dengan nik "{nik}" dan apply_date "{apply_date}"'))
+def send_and_watch_log(client, ctx, nik, apply_date):
+    if not LOG_DIR.is_dir():
+        pytest.skip(f"Folder log service tidak ditemukan ({LOG_DIR}); set REPORT_MAUTO_LOG_DIR")
+    before = {f: f.stat().st_size for f in LOG_DIR.glob("*.log")}
+    _send(client, ctx, {"nik": nik, "apply_date": apply_date, "limit": 100, "offset": 0})
+    time.sleep(0.5)  # beri waktu handler menulis ke file
+    new_lines = []
+    for f in LOG_DIR.glob("*.log"):
+        with f.open("rb") as fh:
+            fh.seek(before.get(f, 0))
+            new_lines += fh.read().decode("utf-8", "replace").splitlines()
+    ctx["log_lines"] = new_lines
 
 
 # ---------------------------------------------------------------------------
@@ -248,3 +322,81 @@ def pages_match_ref(ctx):
         f"(total paging {len(combined)} vs acuan {len(ctx['ref'])}). "
         "Kemungkinan ORDER BY apply_date tidak unik sehingga urutan antar halaman tidak stabil."
     )
+
+
+# --- TS-08 isu README k6 §9 ---
+@then("pool_pre_ping aktif")
+def pool_pre_ping(ctx):
+    assert ctx["pool"]["pool_pre_ping"], "pool_pre_ping=False: koneksi mati tidak dideteksi sebelum dipakai"
+
+
+@then(parsers.parse("pool_timeout tidak lebih dari {sec:d} detik"))
+def pool_timeout(ctx, sec):
+    t = ctx["pool"]["pool_timeout"]
+    assert t is not None and t <= sec, (
+        f"pool_timeout={t} detik (> {sec}): saat pool habis request menunggu lama lalu responseCode 99"
+    )
+
+
+@then(parsers.parse("pool_size adalah {n:d}"))
+def pool_size_is(ctx, n):
+    assert ctx["pool"]["pool_size"] == n, (
+        f"pool_size={ctx['pool']['pool_size']}, diharapkan {n} dari env DB_POOL_SIZE (belum bisa dikonfigurasi)"
+    )
+
+
+@then(parsers.parse("max_overflow adalah {n:d}"))
+def max_overflow_is(ctx, n):
+    assert ctx["pool"]["max_overflow"] == n, (
+        f"max_overflow={ctx['pool']['max_overflow']}, diharapkan {n} dari env DB_MAX_OVERFLOW"
+    )
+
+
+def _mask_nik(text, nik):
+    return text.replace(nik, nik[:4] + "*" * (len(nik) - 8) + nik[-4:])
+
+
+@then(parsers.parse('log service level INFO tidak memuat nik "{nik}"'))
+def log_has_no_nik(ctx, nik):
+    lines = ctx["log_lines"]
+    leaked = [_mask_nik(line, nik) for line in lines if " INFO " in line and nik in line]
+    allure.attach(
+        json.dumps({"log_lines_baru": len(lines), "baris_info_berisi_nik": len(leaked),
+                    "contoh (nik disamarkan)": leaked[:3]}, indent=2),
+        "log service", allure.attachment_type.JSON,
+    )
+    assert not leaked, f"{len(leaked)} baris log INFO memuat NIK, contoh: {leaked[0]}"
+
+
+@then("file log memakai rotasi harian")
+def log_rotates_daily(ctx):
+    file_handlers = [h for h in ctx["log_handlers"] if h["file"]]
+    assert file_handlers, "Tidak ada file handler"
+    wrong = [h for h in file_handlers if h["handler"] != "TimedRotatingFileHandler" or h["when"] != "MIDNIGHT"]
+    assert not wrong, (
+        "File log tidak dirotasi harian: "
+        + ", ".join(f"{h['handler']} ({Path(h['file']).name})" for h in wrong)
+        + ". Nama file memakai tanggal saat service start, sehingga log berhari-hari masuk satu file."
+    )
+
+
+@then(parsers.parse('setiap baris tidak memuat field "{fields}"'))
+def rows_without_fields(ctx, fields):
+    banned = [f.strip() for f in fields.split(",")]
+    rows = _rows(ctx)
+    present = {f: round(sum(len(str(r.get(f) or "")) for r in rows) / 1024, 1)
+               for f in banned if any(f in r for r in rows)}
+    allure.attach(json.dumps({"field_gambar_ditemukan (total KB)": present}, indent=2),
+                  "kolom gambar", allure.attachment_type.JSON)
+    assert not present, f"Response masih memuat kolom gambar: {present} (KB)"
+
+
+@then(parsers.parse("rata-rata ukuran response per baris di bawah {kb:d} KB"))
+def avg_row_size(ctx, kb):
+    rows = _rows(ctx)
+    size_kb = len(ctx["resp"].content) / 1024
+    per_row = size_kb / len(rows)
+    allure.attach(json.dumps({"rows": len(rows), "response_kb": round(size_kb, 1),
+                              "kb_per_row": round(per_row, 1), "batas_kb_per_row": kb}, indent=2),
+                  "ukuran response", allure.attachment_type.JSON)
+    assert per_row < kb, f"rata-rata {per_row:.1f} KB per baris (response {size_kb:.0f} KB untuk {len(rows)} baris)"

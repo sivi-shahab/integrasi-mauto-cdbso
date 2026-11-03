@@ -198,3 +198,47 @@ Feature: POST /v1/report_mauto
         | salah   |
         | kosong  |
         | tanpa   |
+
+  # ---------------------------------------------------------------------------
+  # TS-08 merekam isu di tests/k6/README.md §9 SEBELUM diperbaiki.
+  # Tag @known_issue = isu belum diperbaiki: test diharapkan GAGAL (bukti "before")
+  # dan tidak menggagalkan pipeline. Setelah fix, hapus tag @known_issue agar
+  # test menjadi gate (bukti "after"). Lihat docs/implementation-fixing-plan.md.
+  Rule: TS-08 Isu performa dan operasional (README k6 §9)
+
+    @TC-22 @severity:critical @known_issue @issue_9_1
+    Scenario: TC-22 Connection pool database dikonfigurasi eksplisit (§9.1)
+      When konfigurasi pool database service dibaca
+      Then pool_pre_ping aktif
+      And pool_timeout tidak lebih dari 10 detik
+
+    @TC-23 @severity:normal @known_issue @issue_9_2
+    Scenario: TC-23 Ukuran pool dapat diatur lewat environment variable (§9.2)
+      When konfigurasi pool database service dibaca dengan env "DB_POOL_SIZE=3,DB_MAX_OVERFLOW=2"
+      Then pool_size adalah 3
+      And max_overflow adalah 2
+
+    @TC-24 @severity:critical @known_issue @issue_9_3
+    Scenario: TC-24 Log aplikasi level INFO tidak memuat NIK (§9.3)
+      When request dikirim sambil memantau log service dengan nik "3201133107990002" dan apply_date "29092025"
+      Then responseCode adalah "00"
+      And log service level INFO tidak memuat nik "3201133107990002"
+
+    @TC-25 @severity:normal @known_issue @issue_9_3
+    Scenario: TC-25 File log dirotasi harian (§9.3)
+      When konfigurasi logging service dibaca
+      Then file log memakai rotasi harian
+
+    @TC-26 @severity:critical @known_issue @needs-confirmation @issue_9_4
+    Scenario: TC-26 Response list tidak memuat kolom gambar base64 (§9.4)
+      When request dikirim dengan nik "3201133107990002" dan apply_date "29092025"
+      Then responseCode adalah "00"
+      And data tidak kosong
+      And setiap baris tidak memuat field "selfie, request_base64_ktp, profile_pic"
+
+    @TC-27 @severity:normal @known_issue @issue_9_4
+    Scenario: TC-27 Ukuran response per baris di bawah 20 KB (§9.4)
+      When request dikirim dengan nik "3201133107990002" dan apply_date "29092025"
+      Then responseCode adalah "00"
+      And data tidak kosong
+      And rata-rata ukuran response per baris di bawah 20 KB

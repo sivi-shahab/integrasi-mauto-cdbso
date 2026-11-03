@@ -10,8 +10,18 @@ dan [`docs/load-test/2026-11-03/REPORT.md`](load-test/2026-11-03/REPORT.md).
 | 9.1 | Connection pool DB default | ❌ Belum | `app/db/session.py` memakai `create_engine(DATABASE_URL)` tanpa konfigurasi: `pool_size=5`, `max_overflow=10`, `pool_timeout=30`, tanpa `pool_pre_ping` |
 | 9.2 | Total koneksi ke PostgreSQL | ⚠️ Belum relevan | Masih 1 worker (`main.py`), maks 15 koneksi. Relevan setelah multi-worker |
 | 9.3 | Log `INFO` per request | ❌ Belum | `report_mauto_service.py` menulis 1 log `INFO` per request, berisi NIK. Nama file log memakai tanggal saat startup, tidak berganti per hari |
-| 9.4 | Ukuran response (`SELECT *`) | ❌ Belum | Masih `SELECT *` termasuk `selfie` & `request_base64_ktp`; rata-rata ~3,4 MB/response, maks 13,5 MB |
+| 9.4 | Ukuran response (`SELECT *`) | ❌ Belum | Masih `SELECT *` termasuk `request_base64_ktp`, `profile_pic`, `selfie` (±563 KB/baris di UAT); rata-rata ~3,4 MB/response, maks 13,5 MB |
 | 9.5 | Batas mesin k6 | n/a | Catatan operasional mesin load test, bukan bug aplikasi |
+
+Bukti kondisi sebelum perbaikan: [`docs/load-test/2026-11-03/BASELINE-ISSUES.md`](load-test/2026-11-03/BASELINE-ISSUES.md),
+Allure **TS-08** (TC-22 – TC-27, tag `@known_issue`), dan GitHub Issues dari [`docs/issues/`](issues/).
+
+| Isu | Test case Allure | GitHub Issue (template) |
+|-----|------------------|-------------------------|
+| 9.1 | TC-22 | `docs/issues/9.1-connection-pool.md` |
+| 9.2 | TC-23 | `docs/issues/9.2-total-koneksi.md` |
+| 9.3 | TC-24, TC-25 | `docs/issues/9.3-logging.md` |
+| 9.4 | TC-26, TC-27 | `docs/issues/9.4-ukuran-response.md` |
 
 Fix yang sudah masuk `main`: paging tidak stabil (tiebreaker `ctid`, commit `ddb2345`) dan
 functional test BDD + Allure (commit `3abf776`), kini berjalan otomatis di GitHub Actions.
@@ -25,7 +35,7 @@ Hasil load test (20 VU): service jenuh di ±26 req/s, bottleneck **CPU 1 proses 
 
 - **Masalah:** kolom gambar base64 mendominasi ukuran response dan CPU serialisasi JSON.
 - **Rencana:**
-  1. Konfirmasi ke klien/konsumen API apakah `selfie` dan `request_base64_ktp` dibutuhkan di endpoint list.
+  1. Konfirmasi ke klien/konsumen API apakah `selfie`, `request_base64_ktp`, dan `profile_pic` dibutuhkan di endpoint list.
   2. Ganti `SELECT *` dengan daftar kolom eksplisit tanpa kolom gambar.
   3. Jika gambar tetap dibutuhkan: endpoint detail terpisah per `application_id`
      (mis. `POST /v1/report_mauto/image`), atau flag opsional `include_images` (default `false`)
@@ -91,5 +101,6 @@ Hasil load test (20 VU): service jenuh di ±26 req/s, bottleneck **CPU 1 proses 
 | 4 | P4 primary key | DBA / ETL | Tiebreaker `ctid` dihapus, TC-08 tetap hijau |
 | 5 | P5 kontrak validasi | Ya — bisnis | Tag `@needs-confirmation` dihapus dari feature file |
 
-Setiap tahap: functional test BDD harus hijau di CI (report Allure di GitHub Pages) dan hasil k6
+Setiap tahap: test case TS-08 terkait lulus lalu tag `@known_issue` dihapus (menjadi gate), bagian *After* di
+`BASELINE-ISSUES.md` diisi, k6 after fix disimpan di `tests/k6/published/after/`, functional test BDD harus hijau di CI (report Allure di GitHub Pages) dan hasil k6
 dicatat di `docs/load-test/<tanggal>/` agar bisa dibandingkan dengan baseline.

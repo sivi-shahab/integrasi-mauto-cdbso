@@ -35,7 +35,31 @@ Sumber kebenaran test scenario/test case: [`features/report_mauto.feature`](feat
 
 | TS-07 Performa (k6) | TC-17 – TC-21 | Threshold k6: error HTTP, latency p95/p99, `business_success`, `checks` | critical/normal | lihat [tests/k6/README.md](../k6/README.md#hasil-k6-di-allure-report-ts-07) |
 
+| TS-08 Isu §9 README k6 | TC-22 | Pool DB: `pool_pre_ping` aktif, `pool_timeout` ≤ 10 dtk (§9.1) | critical | lulus setelah fix |
+| | TC-23 | Ukuran pool bisa diatur via env `DB_POOL_SIZE` / `DB_MAX_OVERFLOW` (§9.2) | normal | lulus setelah fix |
+| | TC-24 | Log level INFO tidak memuat NIK (§9.3) | critical | lulus setelah fix |
+| | TC-25 | File log dirotasi harian (`TimedRotatingFileHandler`, midnight) (§9.3) | normal | lulus setelah fix |
+| | TC-26 ⚠ | Response list tanpa `selfie`, `request_base64_ktp`, `profile_pic` (§9.4) | critical | lulus setelah fix |
+| | TC-27 | Rata-rata ukuran response < 20 KB per baris (§9.4) | normal | lulus setelah fix |
+
 TS-07 tidak berasal dari feature file ini, melainkan dari summary k6 yang dikonversi oleh `tests/k6/k6_to_allure.py`.
+
+### TS-08 dan bukti before/after
+
+TS-08 merekam isu di [README k6 §9](../k6/README.md#9-risiko--hal-yang-perlu-diperhatikan) **sebelum**
+diperbaiki. Test case diberi tag `@known_issue`:
+
+- **Before (sekarang):** TC-22 sampai TC-27 **gagal** di Allure sebagai bukti isu. Di CI dijalankan terpisah
+  (`pytest -m known_issue`) sehingga tidak menggagalkan pipeline.
+- **After:** setelah satu isu diperbaiki, test case-nya otomatis **lulus**. Hapus tag `@known_issue` dari
+  skenario tersebut agar menjadi gate (regresi akan menggagalkan pipeline).
+- Riwayat gagal → lulus per test case terlihat di tab **History** pada detail test case dan grafik **Trend**
+  di Allure report. Bukti tertulis ada di `docs/load-test/2026-11-03/BASELINE-ISSUES.md`.
+
+TC-22, TC-23 dan TC-25 memeriksa konfigurasi service (import kode `app/` di proses terpisah); TC-24 membaca
+file log service di `logs/` (atau `REPORT_MAUTO_LOG_DIR`) dan di-skip jika service berjalan di host lain.
+Seed CI memakai kolom gambar dummy berukuran sama dengan rata-rata UAT, sehingga TC-26/TC-27 juga
+merekam isu di CI.
 
 ⚠ = tag `@needs-confirmation`: expected mengikuti perilaku service saat ini dan perlu konfirmasi bisnis.
 
@@ -46,6 +70,8 @@ Service harus sudah berjalan. API key dibaca dari `VALID_API_KEYS` di `.env`.
 ```bash
 uv sync --dev
 uv run pytest                                   # semua test, hasil ke tests/functional/allure-results
+uv run pytest -m "not known_issue"              # tanpa isu yang belum diperbaiki (gate CI)
+uv run pytest -m known_issue                    # hanya TS-08 (isu §9)
 uv run pytest -m "TC-01"                        # satu test case
 uv run pytest -m "severity:blocker"             # per severity
 REPORT_MAUTO_BASE_URL=http://host:8013 uv run pytest   # target lain
