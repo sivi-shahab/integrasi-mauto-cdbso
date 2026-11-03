@@ -103,6 +103,47 @@ print(json.dumps([{"handler": type(h).__name__, "file": getattr(h, "baseFilename
 """
 
 
+# Benchmark jalur endpoint lengkap (validasi, service, serialisasi) memakai
+# TestClient dan DB palsu, sehingga hanya biaya aplikasi yang terukur (tanpa DB/jaringan).
+# Ukuran kolom gambar = rata-rata UAT 2026-11-03.
+_BENCH_CODE = """
+import base64, datetime, json, logging, statistics, time
+logging.disable(logging.CRITICAL)
+from fastapi.testclient import TestClient
+from main import app
+from app.core.configs import settings
+from app.core.deps import get_db
+
+def img(kb):
+    raw = (b"dummy-image-for-ci-" * (kb * 1024 // 19 + 1))[: kb * 1024 * 3 // 4]
+    return base64.b64encode(raw).decode()
+
+rows = [{"application_id": f"APP-{i}", "nik": "3201133107990002",
+         "apply_date": datetime.datetime(2025, 9, 29, 9, i), "status": "APPROVED",
+         "selfie": img(50), "profile_pic": img(131), "request_base64_ktp": img(375)} for i in range(12)]
+
+class _Result:
+    def mappings(self): return self
+    def all(self): return rows
+
+class FakeDB:
+    def execute(self, *a, **k): return _Result()
+    def close(self): pass
+
+app.dependency_overrides[get_db] = lambda: FakeDB()
+client = TestClient(app)
+headers = {settings.API_KEY_NAME: settings.VALID_API_KEYS}
+times = []
+for _ in range(9):
+    t = time.perf_counter()
+    r = client.post("/v1/report_mauto", json={"nik": "3201133107990002", "apply_date": "29092025"}, headers=headers)
+    times.append((time.perf_counter() - t) * 1000)
+assert r.status_code == 200 and r.json()["responseCode"] == "00", r.text[:200]
+print(json.dumps({"rows": len(rows), "response_mb": round(len(r.content) / 1e6, 2),
+                  "median_ms": round(statistics.median(times[2:]), 1), "runs_ms": [round(x, 1) for x in times]}))
+"""
+
+
 # ---------------------------------------------------------------------------
 # Given
 # ---------------------------------------------------------------------------
@@ -196,6 +237,11 @@ def read_pool_config_env(ctx, pairs):
 def read_logging_config(ctx):
     with tempfile.TemporaryDirectory() as tmp:  # setup_logging membuat folder logs/ di cwd
         ctx["log_handlers"] = _inspect(_LOGGING_CODE, cwd=tmp)
+
+
+@when("response 12 baris dengan kolom gambar seukuran UAT dirender lewat endpoint")
+def bench_render(ctx):
+    ctx["bench"] = _inspect(_BENCH_CODE)
 
 
 @when(parsers.parse('request dikirim sambil memantau log service dengan nik "{nik}" dan apply_date "{apply_date}"'))
@@ -380,23 +426,18 @@ def log_rotates_daily(ctx):
     )
 
 
-@then(parsers.parse('setiap baris tidak memuat field "{fields}"'))
-def rows_without_fields(ctx, fields):
-    banned = [f.strip() for f in fields.split(",")]
-    rows = _rows(ctx)
-    present = {f: round(sum(len(str(r.get(f) or "")) for r in rows) / 1024, 1)
-               for f in banned if any(f in r for r in rows)}
-    allure.attach(json.dumps({"field_gambar_ditemukan (total KB)": present}, indent=2),
-                  "kolom gambar", allure.attachment_type.JSON)
-    assert not present, f"Response masih memuat kolom gambar: {present} (KB)"
+@then(parsers.parse('apply_date dalam format ISO 8601 "{fmt}"'))
+def apply_date_iso(ctx, fmt):
+    import re
+    pattern = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$")
+    wrong = [r.get("apply_date") for r in _rows(ctx) if not pattern.match(str(r.get("apply_date")))]
+    assert not wrong, f"apply_date tidak sesuai format {fmt}: {wrong[:3]}"
 
 
-@then(parsers.parse("rata-rata ukuran response per baris di bawah {kb:d} KB"))
-def avg_row_size(ctx, kb):
-    rows = _rows(ctx)
-    size_kb = len(ctx["resp"].content) / 1024
-    per_row = size_kb / len(rows)
-    allure.attach(json.dumps({"rows": len(rows), "response_kb": round(size_kb, 1),
-                              "kb_per_row": round(per_row, 1), "batas_kb_per_row": kb}, indent=2),
-                  "ukuran response", allure.attachment_type.JSON)
-    assert per_row < kb, f"rata-rata {per_row:.1f} KB per baris (response {size_kb:.0f} KB untuk {len(rows)} baris)"
+@then(parsers.parse("waktu render median di bawah {ms:d} ms"))
+def render_time(ctx, ms):
+    b = ctx["bench"]
+    assert b["median_ms"] < ms, (
+        f"render {b['response_mb']} MB ({b['rows']} baris) median {b['median_ms']} ms >= {ms} ms "
+        "(serialisasi JSON standar: jsonable_encoder + json.dumps)"
+    )

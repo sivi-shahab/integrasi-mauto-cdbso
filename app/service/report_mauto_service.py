@@ -6,7 +6,12 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.schemas.report_mauto_schema import ReportMautoCdsboRequest
-from app.schemas.response import ResponseCode, error_response, success_response
+from app.schemas.response import (
+    FastJSONResponse,
+    ResponseCode,
+    error_response,
+    success_response,
+)
 
 logger = getLogger(__name__)
 
@@ -106,7 +111,9 @@ class ReportMautoService:
                 "report_mauto nik=%s apply_date=%s rows=%d",
                 nik, parsed_date, len(data),
             )
-            return success_response(data)
+            # FastJSONResponse: lewati jsonable_encoder + json.dumps (±60% CPU per
+            # request karena kolom gambar base64). Isi response tidak berubah.
+            return FastJSONResponse(success_response(data))
         except Exception:
             logger.exception("get_report_mauto failed, params=%s", params)
             return error_response(

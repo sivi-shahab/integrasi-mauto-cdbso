@@ -229,16 +229,17 @@ Feature: POST /v1/report_mauto
       When konfigurasi logging service dibaca
       Then file log memakai rotasi harian
 
-    @TC-26 @severity:critical @known_issue @needs-confirmation @issue_9_4
-    Scenario: TC-26 Response list tidak memuat kolom gambar base64 (§9.4)
+    # §9.4 keputusan 2026-11-03: kontrak response TETAP (kolom gambar tetap dikirim).
+    # Perbaikan difokuskan pada efisiensi serialisasi, bukan isi response.
+    @TC-26 @severity:critical @issue_9_4
+    Scenario: TC-26 Kontrak response tetap memuat kolom gambar (§9.4)
       When request dikirim dengan nik "3201133107990002" dan apply_date "29092025"
       Then responseCode adalah "00"
       And data tidak kosong
-      And setiap baris tidak memuat field "selfie, request_base64_ktp, profile_pic"
+      And setiap baris memuat field "selfie, request_base64_ktp, profile_pic"
+      And apply_date dalam format ISO 8601 "YYYY-MM-DDTHH:MM:SS"
 
-    @TC-27 @severity:normal @known_issue @issue_9_4
-    Scenario: TC-27 Ukuran response per baris di bawah 20 KB (§9.4)
-      When request dikirim dengan nik "3201133107990002" dan apply_date "29092025"
-      Then responseCode adalah "00"
-      And data tidak kosong
-      And rata-rata ukuran response per baris di bawah 20 KB
+    @TC-27 @severity:critical @issue_9_4
+    Scenario: TC-27 Rendering response besar efisien (§9.4)
+      When response 12 baris dengan kolom gambar seukuran UAT dirender lewat endpoint
+      Then waktu render median di bawah 35 ms

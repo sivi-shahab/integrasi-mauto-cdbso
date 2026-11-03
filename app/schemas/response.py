@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
+import orjson
 from pydantic import BaseModel
 from enum import Enum
 
@@ -42,3 +44,17 @@ def error_response(code: str, description: str):
         "responseDescription": description,
         "data": None
     }
+
+
+class FastJSONResponse(JSONResponse):
+    """JSONResponse dengan serialisasi orjson.
+
+    Kembalikan instance ini langsung dari endpoint agar FastAPI tidak menjalankan
+    jsonable_encoder. Output identik dengan JSONResponse standar (separator
+    compact, UTF-8, datetime ISO 8601) tetapi jauh lebih cepat untuk response
+    besar seperti kolom gambar base64 (README k6 §9.4).
+    """
+
+    def render(self, content) -> bytes:
+        # Tipe yang tidak didukung orjson (mis. Decimal) memakai aturan FastAPI.
+        return orjson.dumps(content, default=jsonable_encoder)
