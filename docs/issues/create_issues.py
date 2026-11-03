@@ -4,6 +4,11 @@
     GITHUB_TOKEN=<token dengan scope repo/issues> python3 docs/issues/create_issues.py [--repo owner/name] [--dry-run]
 
 Issue dengan judul yang sama (open) tidak dibuat ulang.
+
+Di jaringan dengan proxy TLS korporat, arahkan Python ke CA sistem:
+    SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt GITHUB_TOKEN=... python3 docs/issues/create_issues.py
+
+Sudah dibuat 2026-11-03: #2 (§9.1), #3 (§9.2), #4 (§9.3), #5 (§9.4).
 """
 import argparse
 import json

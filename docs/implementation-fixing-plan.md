@@ -16,12 +16,12 @@ dan [`docs/load-test/2026-11-03/REPORT.md`](load-test/2026-11-03/REPORT.md).
 Bukti kondisi sebelum perbaikan: [`docs/load-test/2026-11-03/BASELINE-ISSUES.md`](load-test/2026-11-03/BASELINE-ISSUES.md),
 Allure **TS-08** (TC-22 – TC-27, tag `@known_issue`), dan GitHub Issues dari [`docs/issues/`](issues/).
 
-| Isu | Test case Allure | GitHub Issue (template) |
+| Isu | Test case Allure | GitHub Issue |
 |-----|------------------|-------------------------|
-| 9.1 | TC-22 | `docs/issues/9.1-connection-pool.md` |
-| 9.2 | TC-23, TC-29, TC-30 | `docs/issues/9.2-total-koneksi.md` |
-| 9.3 | TC-24, TC-25, TC-28 | `docs/issues/9.3-logging.md` |
-| 9.4 | TC-26, TC-27 | `docs/issues/9.4-ukuran-response.md` |
+| 9.1 | TC-22 | [#2](https://github.com/sivi-shahab/integrasi-mauto-cdbso/issues/2) · `docs/issues/9.1-connection-pool.md` |
+| 9.2 | TC-23, TC-29, TC-30 | [#3](https://github.com/sivi-shahab/integrasi-mauto-cdbso/issues/3) · `docs/issues/9.2-total-koneksi.md` |
+| 9.3 | TC-24, TC-25, TC-28 | [#4](https://github.com/sivi-shahab/integrasi-mauto-cdbso/issues/4) · `docs/issues/9.3-logging.md` |
+| 9.4 | TC-26, TC-27 | [#5](https://github.com/sivi-shahab/integrasi-mauto-cdbso/issues/5) · `docs/issues/9.4-ukuran-response.md` |
 
 Fix yang sudah masuk `main`: paging tidak stabil (tiebreaker `ctid`, commit `ddb2345`) dan
 functional test BDD + Allure (commit `3abf776`), kini berjalan otomatis di GitHub Actions.
