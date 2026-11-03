@@ -162,3 +162,4 @@ REPORT_MAUTO_BASE_URL=http://localhost:8013 uv run pytest
 | `BASELINE-ISSUES.md` | Bukti isu README k6 §9 sebelum & sesudah perbaikan |
 | `FIX-9.4.md` | Fix §9.4 (orjson, kontrak tetap) + stress test after (+ `k6_stress_after_fix94*`, `resource_stress_after_fix94.csv`) |
 | `FIX-9.3.md` | Fix §9.3 logging (NIK & rotasi harian) |
+| `FIX-9.1-9.2.md` | Fix §9.1/§9.2 pool, multi-worker, budget koneksi + stress 4 worker (+ `k6_stress_after_fix912*`, `resource_stress_after_fix912.csv`) |

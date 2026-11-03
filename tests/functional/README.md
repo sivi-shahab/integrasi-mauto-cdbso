@@ -35,8 +35,10 @@ Sumber kebenaran test scenario/test case: [`features/report_mauto.feature`](feat
 
 | TS-07 Performa (k6) | TC-17 – TC-21 | Threshold k6: error HTTP, latency p95/p99, `business_success`, `checks` | critical/normal | lihat [tests/k6/README.md](../k6/README.md#hasil-k6-di-allure-report-ts-07) |
 
-| TS-08 Isu §9 README k6 | TC-22 | Pool DB: `pool_pre_ping` aktif, `pool_timeout` ≤ 10 dtk (§9.1) | critical | lulus setelah fix |
-| | TC-23 | Ukuran pool bisa diatur via env `DB_POOL_SIZE` / `DB_MAX_OVERFLOW` (§9.2) | normal | lulus setelah fix |
+| TS-08 Isu §9 README k6 | TC-22 | Pool DB: `pool_pre_ping` aktif, `pool_timeout` ≤ 10 dtk (§9.1) | critical | ✅ lulus sejak fix §9.1 |
+| | TC-23 | Ukuran pool bisa diatur via env `DB_POOL_SIZE` / `DB_MAX_OVERFLOW` (§9.2) | normal | ✅ lulus sejak fix §9.2 |
+| | TC-29 | Total koneksi multi-worker dibatasi `DB_CONNECTION_BUDGET` (4 worker diterima, 20 ditolak) (§9.2) | critical | ✅ lulus sejak fix §9.2 |
+| | TC-30 | Rotasi log harian dengan 2 worker: tidak ada log hilang & semua worker pindah ke file hari baru (§9.2/§9.3) | critical | ✅ lulus sejak fix §9.2 |
 | | TC-24 | Log level INFO (dan level lain) tidak memuat NIK lengkap (§9.3) | critical | ✅ lulus sejak fix §9.3 |
 | | TC-25 | File log dirotasi harian (`TimedRotatingFileHandler`, midnight) (§9.3) | normal | ✅ lulus sejak fix §9.3 |
 | | TC-28 | NIK di pesan error & traceback disamarkan di file log (§9.3) | critical | ✅ lulus sejak fix §9.3 |
@@ -50,8 +52,8 @@ TS-07 tidak berasal dari feature file ini, melainkan dari summary k6 yang dikonv
 TS-08 merekam isu di [README k6 §9](../k6/README.md#9-risiko--hal-yang-perlu-diperhatikan) **sebelum**
 diperbaiki. Test case diberi tag `@known_issue`:
 
-- Status 2026-11-03: §9.3 (TC-24, TC-25, TC-28) dan §9.4 (TC-26, TC-27) **sudah diperbaiki** dan menjadi gate;
-  yang masih `@known_issue`: TC-22, TC-23 (§9.1/§9.2).
+- Status 2026-11-03: **semua isu §9 sudah diperbaiki**; TC-22 – TC-30 menjadi gate dan tidak ada lagi
+  test bertag `@known_issue` (langkah CI `pytest -m known_issue` dibiarkan untuk isu berikutnya).
 - **Before:** TC-22 sampai TC-27 **gagal** di Allure sebagai bukti isu. Di CI dijalankan terpisah
   (`pytest -m known_issue`) sehingga tidak menggagalkan pipeline.
 - **After:** setelah satu isu diperbaiki, test case-nya otomatis **lulus**. Hapus tag `@known_issue` dari
@@ -59,7 +61,7 @@ diperbaiki. Test case diberi tag `@known_issue`:
 - Riwayat gagal → lulus per test case terlihat di tab **History** pada detail test case dan grafik **Trend**
   di Allure report. Bukti tertulis ada di `docs/load-test/2026-11-03/BASELINE-ISSUES.md`.
 
-TC-22, TC-23, TC-25 dan TC-28 memeriksa konfigurasi service (import kode `app/` di proses terpisah); TC-24 membaca
+TC-22, TC-23, TC-25, TC-28, TC-29 dan TC-30 memeriksa konfigurasi service (import kode `app/` di proses terpisah); TC-24 membaca
 file log service di `logs/` (atau `REPORT_MAUTO_LOG_DIR`) dan di-skip jika service berjalan di host lain.
 Seed CI memakai kolom gambar dummy berukuran sama dengan rata-rata UAT.
 

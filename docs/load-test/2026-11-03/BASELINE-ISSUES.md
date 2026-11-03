@@ -11,7 +11,7 @@ Bukti tersedia di tiga tempat:
 | Bukti | Before (sekarang) | After (setelah fix) |
 |-------|-------------------|---------------------|
 | Allure TS-08 (TC-22 – TC-27) | 6 test case **gagal** | test case lulus, tab *History* menunjukkan gagal → lulus |
-| Allure TS-07 k6 internal (load & stress) | `Internal UAT · before fix` (`tests/k6/published/before/`) | `Internal UAT · after fix` (`tests/k6/published/after/`) |
+| Allure TS-07 k6 internal (load & stress) | `Internal UAT · before fix` (`tests/k6/published/before-fix/`) | `after fix 9.4`, `after fix 9.1 9.2` (`tests/k6/published/after-fix-*/`) | `Internal UAT · after fix` (`tests/k6/published/after-fix-9.4/`) |
 | Dokumen ini | bagian Before | bagian After |
 
 Report: <https://sivi-shahab.github.io/integrasi-mauto-cdbso/>
@@ -67,7 +67,7 @@ Ukuran kolom di tabel `public.report_mauto_cdsbo` UAT (295 baris, 151 MB):
 
 ### k6 load test internal (TS-07, `Internal UAT · before fix`)
 
-Sumber: `tests/k6/published/before/summary_load_20261103_043349.json`. Skenario `load` (20 VU, 5 menit),
+Sumber: `tests/k6/published/before-fix/summary_load_20261103_043349.json`. Skenario `load` (20 VU, 5 menit),
 1 proses uvicorn, server 8 core, DB UAT, 10 kombinasi data uji.
 
 | Metrik | Nilai |
@@ -83,7 +83,7 @@ menunjukkan ukuran response adalah faktor dominan.
 
 ### k6 stress test internal (TS-07, `Internal UAT · before fix`)
 
-Laporan lengkap: [STRESS-BEFORE.md](STRESS-BEFORE.md). Sumber: `tests/k6/published/before/summary_stress_20261103_094255.json`.
+Laporan lengkap: [STRESS-BEFORE.md](STRESS-BEFORE.md). Sumber: `tests/k6/published/before-fix/summary_stress_20261103_094255.json`.
 Skenario `stress` (20 → 300 VU, 11 menit), konfigurasi sama dengan load test.
 
 | Metrik | Nilai |
@@ -97,19 +97,21 @@ Skenario `stress` (20 → 300 VU, 11 menit), konfigurasi sama dengan load test.
 
 ## After (setelah perbaikan)
 
-Status per 2026-11-03: **§9.3 dan §9.4 selesai**, §9.1/§9.2 belum. Detail: [FIX-9.4.md](FIX-9.4.md), [FIX-9.3.md](FIX-9.3.md).
+Status per 2026-11-03: **semua isu §9.1–§9.4 selesai**. Detail: [FIX-9.4.md](FIX-9.4.md), [FIX-9.3.md](FIX-9.3.md), [FIX-9.1-9.2.md](FIX-9.1-9.2.md).
 
 Langkah untuk isu berikutnya:
 
 1. Hapus tag `@known_issue` dari skenario yang sudah diperbaiki di `tests/functional/features/report_mauto.feature`.
 2. Push → pastikan TC terkait **lulus** di Allure; catat nomor run GitHub Actions di tabel bawah.
-3. Jalankan k6 dengan skenario & konfigurasi yang sama dengan before, simpan ke `tests/k6/published/after/`.
+3. Jalankan k6 dengan skenario & konfigurasi yang sama dengan before, simpan ke `tests/k6/published/after-fix-9.4/`.
 4. Ulangi capture di dokumen ini (konfigurasi pool, contoh log, ukuran response) dan isi tabel:
 
 | Isu | TC | Before | After | Run / commit after |
 |-----|----|--------|-------|--------------------|
-| §9.1 | TC-22 | gagal (`pre_ping=false`, `timeout=30`) | | |
-| §9.2 | TC-23 | gagal (pool tidak bisa diatur) | | |
+| §9.1 | TC-22 | gagal (`pre_ping=false`, `timeout=30`) | ✅ lulus: `pre_ping=true`, `timeout=10`, `recycle=1800` | `b807940` ([FIX-9.1-9.2.md](FIX-9.1-9.2.md)) |
+| §9.2 | TC-23 | gagal (pool tidak bisa diatur) | ✅ lulus: `DB_POOL_SIZE`/`DB_MAX_OVERFLOW` dari env | `b807940` |
+| §9.2 | TC-29 (baru) | gagal (tidak ada batas total koneksi) | ✅ lulus: 4 worker = 40 diterima, 20 worker = 200 ditolak | `b807940` |
+| §9.2/§9.3 | TC-30 (baru) | gagal (`ebf109f`: worker ke-2 menulis ke file kemarin setelah rotasi) | ✅ lulus: `DailyFileHandler` | `b807940` |
 | §9.3 | TC-24 | gagal (NIK di log INFO) | ✅ lulus: 0 baris log memuat NIK lengkap | fix §9.3 ([FIX-9.3.md](FIX-9.3.md)) |
 | §9.3 | TC-25 | gagal (`RotatingFileHandler`) | ✅ lulus: `TimedRotatingFileHandler` midnight | fix §9.3 |
 | §9.3 | TC-28 (baru) | gagal (kode lama: NIK lengkap 6× di error/traceback) | ✅ lulus: 0×, tersamar 6× | fix §9.3 |
@@ -117,3 +119,4 @@ Langkah untuk isu berikutnya:
 | §9.4 | TC-27 | gagal (definisi awal: 561 KB/baris; definisi baru: render 52–56 ms) | ✅ lulus: render ±17 ms (< 35 ms) | `813e869` |
 | k6 load | TS-07 | 26,5 req/s, p95 997,6 ms | *belum dijalankan ulang* | |
 | k6 stress | TS-07 | 28,6 req/s, p95 9.602 ms, RAM 2 GB, 0% error ([STRESS-BEFORE.md](STRESS-BEFORE.md)) | **70,3 req/s (×2,46)**, p95 3.913 ms, RAM 1,9 GB, 0% error; threshold p95/p99 masih gagal di 300 VU | `813e869` (fix §9.4) |
+| k6 stress 4 worker | TS-07 | (sama dengan baris di atas) | **120,5 req/s (×4,2 dari before)**, p95 1.413 ms, p99 1.949 ms ✓, koneksi DB maks 40, 0,27% EOF pada ≥ 175 VU (belum terselesaikan) | `b807940` (fix §9.1/§9.2) |

@@ -54,7 +54,7 @@ Pola beban (`tests/k6/report_mauto_stress.js`, tanpa `sleep`, jadi 1 VU = 1 requ
 
 ## 3. Hasil k6 keseluruhan
 
-Sumber: [`k6_stress_before.txt`](k6_stress_before.txt), juga di `tests/k6/published/before/summary_stress_20261103_094255.*`.
+Sumber: [`k6_stress_before.txt`](k6_stress_before.txt), juga di `tests/k6/published/before-fix/summary_stress_20261103_094255.*`.
 
 | Metrik | Nilai |
 |--------|-------|
@@ -169,7 +169,7 @@ docker run --rm --network host --user "$(id -u):$(id -g)" -v "$PWD":/work -w /wo
   tests/k6/report_mauto_stress.js
 
 # 4. publikasikan ke Allure (TS-07 · Internal UAT · after fix)
-cp tests/k6/results/summary_stress_<timestamp>.{json,txt} tests/k6/published/after/
+cp tests/k6/results/summary_stress_<timestamp>.{json,txt} tests/k6/published/after-fix-9.4/
 ```
 
 Untuk multi-worker, sampler harus menjumlahkan semua proses worker (mis. `ps --ppid <pid master>`).
@@ -183,5 +183,5 @@ Buat `STRESS-AFTER.md` dengan struktur yang sama dengan dokumen ini dan isi tabe
 | [`k6_stress_before.txt`](k6_stress_before.txt) | Ringkasan k6 |
 | [`k6_stress_before_timeline.csv`](k6_stress_before_timeline.csv) | RPS & latency per 30 detik |
 | [`resource_stress_before.csv`](resource_stress_before.csv) | CPU % & RSS service per 5 detik |
-| `tests/k6/published/before/summary_stress_20261103_094255.{json,txt}` | Summary untuk Allure TS-07 |
+| `tests/k6/published/before-fix/summary_stress_20261103_094255.{json,txt}` | Summary untuk Allure TS-07 |
 | `tests/k6/results/raw_stress_before.csv` | Output mentah k6 (32 MB, tidak di-commit) |

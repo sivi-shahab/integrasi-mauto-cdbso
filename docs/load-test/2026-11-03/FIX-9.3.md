@@ -1,5 +1,10 @@
 # Fix §9.3: logging (NIK di log & rotasi harian)
 
+> **Pembaruan (fix §9.1/§9.2, commit `b807940`):** handler file diganti `DailyFileHandler` (subclass
+> `TimedRotatingFileHandler`) dengan nama `logs/detailed-YYYY-MM-DD.log` / `logs/error-YYYY-MM-DD.log`, karena
+> `TimedRotatingFileHandler` standar tidak aman untuk multi-worker. Lihat [FIX-9.1-9.2.md §4](FIX-9.1-9.2.md#4-dampak-ke-logging-multi-worker).
+> Bagian di bawah menggambarkan fix §9.3 awal (`75169cd`).
+
 | Item | Nilai |
 |------|-------|
 | Isu | [README k6 §9.3](../../../tests/k6/README.md#93-log-aplikasi): log `INFO` per request memuat NIK, file log tidak dirotasi harian |

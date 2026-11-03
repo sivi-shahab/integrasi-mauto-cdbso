@@ -5,10 +5,10 @@ dan [`docs/load-test/2026-11-03/REPORT.md`](load-test/2026-11-03/REPORT.md).
 
 ## 1. Status temuan §9 README k6
 
-| Poin | Temuan | Status | Kondisi kode saat ini |
+| Poin | Temuan | Status | Kondisi sebelum fix |
 |------|--------|--------|-----------------------|
-| 9.1 | Connection pool DB default | ❌ Belum | `app/db/session.py` memakai `create_engine(DATABASE_URL)` tanpa konfigurasi: `pool_size=5`, `max_overflow=10`, `pool_timeout=30`, tanpa `pool_pre_ping` |
-| 9.2 | Total koneksi ke PostgreSQL | ⚠️ Belum relevan | Masih 1 worker (`main.py`), maks 15 koneksi. Relevan setelah multi-worker |
+| 9.1 | Connection pool DB default | ✅ Diperbaiki | `app/db/session.py` memakai `create_engine(DATABASE_URL)` tanpa konfigurasi: `pool_size=5`, `max_overflow=10`, `pool_timeout=30`, tanpa `pool_pre_ping` |
+| 9.2 | Total koneksi ke PostgreSQL | ✅ Diperbaiki | Masih 1 worker (`main.py`), maks 15 koneksi. Relevan setelah multi-worker |
 | 9.3 | Log `INFO` per request | ✅ Diperbaiki | `report_mauto_service.py` menulis 1 log `INFO` per request, berisi NIK. Nama file log memakai tanggal saat startup, tidak berganti per hari |
 | 9.4 | Ukuran response (`SELECT *`) | ✅ Diperbaiki (serialisasi), kontrak tetap | Masih `SELECT *` termasuk `request_base64_ktp`, `profile_pic`, `selfie` (±563 KB/baris di UAT); rata-rata ~3,4 MB/response, maks 13,5 MB |
 | 9.5 | Batas mesin k6 | n/a | Catatan operasional mesin load test, bukan bug aplikasi |
@@ -19,7 +19,7 @@ Allure **TS-08** (TC-22 – TC-27, tag `@known_issue`), dan GitHub Issues dari [
 | Isu | Test case Allure | GitHub Issue (template) |
 |-----|------------------|-------------------------|
 | 9.1 | TC-22 | `docs/issues/9.1-connection-pool.md` |
-| 9.2 | TC-23 | `docs/issues/9.2-total-koneksi.md` |
+| 9.2 | TC-23, TC-29, TC-30 | `docs/issues/9.2-total-koneksi.md` |
 | 9.3 | TC-24, TC-25, TC-28 | `docs/issues/9.3-logging.md` |
 | 9.4 | TC-26, TC-27 | `docs/issues/9.4-ukuran-response.md` |
 
@@ -43,29 +43,18 @@ Hasil load test (20 VU): service jenuh di ±26 req/s, bottleneck **CPU 1 proses 
 - **Sisa:** ukuran response (±3,6 MB/request, ±98 MB/s) tetap besar karena keputusan kontrak. Bandwidth dan
   memori tetap menjadi batas saat multi-worker (P2).
 
-### P2 — Multi-worker + konfigurasi pool (9.1 & 9.2)
+### P2 — Multi-worker + konfigurasi pool (9.1 & 9.2) · ✅ selesai 2026-11-03
 
-- **Masalah:** 1 proses Python hanya memakai 1 core dari 8 core server; pool memakai default.
-- **Rencana:**
-  1. Jalankan beberapa worker: `uvicorn main:app --workers N` (atau gunicorn + `uvicorn.workers.UvicornWorker`).
-     Mulai dari `N = 4`.
-  2. Konfigurasi pool lewat environment variable agar bisa disesuaikan per environment:
-     ```python
-     engine = create_engine(
-         DATABASE_URL,
-         pool_size=settings.DB_POOL_SIZE,          # default 5
-         max_overflow=settings.DB_MAX_OVERFLOW,    # default 5
-         pool_timeout=settings.DB_POOL_TIMEOUT,    # default 10 detik (fail fast)
-         pool_pre_ping=True,                       # hindari koneksi mati
-         pool_recycle=1800,
-     )
-     ```
-  3. Hitung batas koneksi: `N worker × (pool_size + max_overflow)` harus < `max_connections`
-     PostgreSQL dikurangi koneksi service lain. Contoh 4 × 10 = 40 koneksi. Koordinasi dengan DBA.
-  4. Update `.env.sample` dan README dengan variabel baru.
-- **File:** `app/db/session.py`, `app/core/configs.py`, `.env.sample`, `main.py` / skrip deploy.
-- **Verifikasi:** k6 `load` & `stress` — throughput naik mendekati ×N, `non_success_response_code{code:99}` tetap 0;
-  pantau `pg_stat_activity`.
+- **Perbaikan:** pool dari env (`DB_POOL_SIZE=5`, `DB_MAX_OVERFLOW=5`, `DB_POOL_TIMEOUT=10`, `DB_POOL_RECYCLE=1800`,
+  `pool_pre_ping`), `APP_WORKERS`/`APP_HOST`/`APP_PORT` di `python main.py`, service gagal start bila
+  `APP_WORKERS × (pool+overflow) > DB_CONNECTION_BUDGET` (100), `application_name=report-mauto-cdsbo`, dan
+  `DailyFileHandler` agar log aman multi-worker.
+- **Bukti:** [`docs/load-test/2026-11-03/FIX-9.1-9.2.md`](load-test/2026-11-03/FIX-9.1-9.2.md), Allure TC-22, TC-23, TC-29, TC-30.
+  Stress 4 worker: 120,5 req/s, p95 1,4 dtk, koneksi DB maks 40.
+- **Sisa:**
+  - 0,27% error koneksi (EOF) pada ≥ 175 VU, belum terselesaikan. Ulangi dengan k6 di mesin terpisah.
+  - `APP_WORKERS` & `DB_CONNECTION_BUDGET` produksi perlu persetujuan infra/DBA.
+  - Trafik DB ±3,3 Gbit/s pada beban puncak.
 
 ### P3 — Logging (9.3) · ✅ selesai 2026-11-03
 
@@ -92,11 +81,11 @@ Hasil load test (20 VU): service jenuh di ±26 req/s, bottleneck **CPU 1 proses 
 | Tahap | Item | Butuh keputusan | Definisi selesai |
 |-------|------|-----------------|------------------|
 | ✅ | P3 logging (9.3) | Tidak | Selesai 2026-11-03, lihat `FIX-9.3.md` |
-| 2 | P2 pool + multi-worker | DBA (batas koneksi), infra (jumlah core) | k6 `load` dibandingkan dengan baseline 2026-11-03 |
+| ✅ | P2 pool + multi-worker (9.1/9.2) | DBA (budget koneksi), infra (jumlah worker) untuk nilai produksi | Selesai 2026-11-03, lihat `FIX-9.1-9.2.md` |
 | ✅ | P1 efisiensi response (9.4) | Diputuskan: kontrak tetap | Selesai 2026-11-03, lihat `FIX-9.4.md` |
 | 4 | P4 primary key | DBA / ETL | Tiebreaker `ctid` dihapus, TC-08 tetap hijau |
 | 5 | P5 kontrak validasi | Ya — bisnis | Tag `@needs-confirmation` dihapus dari feature file |
 
 Setiap tahap: test case TS-08 terkait lulus lalu tag `@known_issue` dihapus (menjadi gate), bagian *After* di
-`BASELINE-ISSUES.md` diisi, k6 after fix disimpan di `tests/k6/published/after/`, functional test BDD harus hijau di CI (report Allure di GitHub Pages) dan hasil k6
+`BASELINE-ISSUES.md` diisi, k6 after fix disimpan di `tests/k6/published/after-fix-9.4/`, functional test BDD harus hijau di CI (report Allure di GitHub Pages) dan hasil k6
 dicatat di `docs/load-test/<tanggal>/` agar bisa dibandingkan dengan baseline.

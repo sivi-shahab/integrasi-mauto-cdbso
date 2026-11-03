@@ -68,10 +68,28 @@ LOG_LEVEL=INFO
 python main.py
 ```
 
-Or with uvicorn directly:
+`python main.py` membaca konfigurasi server dan pool dari `.env` (lihat `.env.sample`):
+
+| Variabel | Default | Keterangan |
+|----------|---------|------------|
+| `APP_HOST` / `APP_PORT` | `0.0.0.0` / `8013` | Alamat service |
+| `APP_WORKERS` | `1` | Jumlah proses worker uvicorn (mis. `4` untuk memakai beberapa core) |
+| `DB_POOL_SIZE` / `DB_MAX_OVERFLOW` | `5` / `5` | Koneksi DB per worker (tetap / tambahan) |
+| `DB_POOL_TIMEOUT` | `10` | Detik menunggu koneksi kosong sebelum error |
+| `DB_POOL_RECYCLE` | `1800` | Detik sebelum koneksi dibuat ulang |
+| `DB_CONNECTION_BUDGET` | `100` | Batas total koneksi; service **gagal start** jika `APP_WORKERS × (DB_POOL_SIZE + DB_MAX_OVERFLOW)` melebihi nilai ini |
+| `LOG_LEVEL` / `LOG_DIR` / `LOG_RETENTION_DAYS` | `INFO` / `logs` / `30` | Logging; file harian `logs/detailed-YYYY-MM-DD.log`, `logs/error-YYYY-MM-DD.log` |
+
+Koneksi service terlihat di PostgreSQL dengan `application_name = 'report-mauto-cdsbo'`:
+
+```sql
+SELECT state, count(*) FROM pg_stat_activity WHERE application_name = 'report-mauto-cdsbo' GROUP BY state;
+```
+
+Or with uvicorn directly (konfigurasi pool tetap dari `.env`, tetapi tanpa pengecekan `DB_CONNECTION_BUDGET`):
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 ### API Endpoints

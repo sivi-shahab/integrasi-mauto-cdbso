@@ -49,7 +49,7 @@ tests/k6/
 ├── data.ci.csv             # data uji untuk GitHub Actions (cocok dengan seed tests/functional/ci)
 ├── k6_to_allure.py         # konversi summary k6 -> Allure results (TS-07)
 ├── .gitignore              # mengabaikan data.csv (berisi NIK)
-├── published/              # summary run internal untuk Allure: before/ (sebelum fix) & after/ (sesudah fix)
+├── published/              # summary run internal untuk Allure, satu folder per fase (before-fix, after-fix-9.4, ...)
 └── results/                # output handleSummary (isi di-ignore git)
 ```
 
@@ -261,6 +261,10 @@ tetap menampilkan ringkasan). Tekan dua kali untuk berhenti paksa.
 
 ### 9.1 Connection pool database kemungkinan besar menjadi bottleneck
 
+> **Status 2026-11-03: diperbaiki.** Pool dikonfigurasi dari env (`DB_POOL_SIZE=5`, `DB_MAX_OVERFLOW=5`,
+> `DB_POOL_TIMEOUT=10`, `pool_pre_ping`, `pool_recycle`). Penjelasan di bawah menggambarkan kondisi sebelum fix.
+> Lihat [`FIX-9.1-9.2.md`](../../docs/load-test/2026-11-03/FIX-9.1-9.2.md).
+
 `app/db/session.py` memakai `create_engine(DATABASE_URL)` tanpa konfigurasi pool,
 sehingga memakai default SQLAlchemy:
 
@@ -283,6 +287,9 @@ Ini **temuan yang wajar** untuk dicatat sebagai hasil stress test, bukan bug
 di script.
 
 ### 9.2 Jumlah koneksi ke PostgreSQL
+
+> **Status 2026-11-03: diperbaiki.** `APP_WORKERS` + pengecekan `DB_CONNECTION_BUDGET` saat start;
+> koneksi terlihat sebagai `application_name='report-mauto-cdsbo'`. Lihat [`FIX-9.1-9.2.md`](../../docs/load-test/2026-11-03/FIX-9.1-9.2.md).
 
 Total koneksi maksimum = `jumlah worker × 15`. Pastikan nilai ini tidak melebihi
 `max_connections` PostgreSQL (cek: `SHOW max_connections;`) dikurangi koneksi
@@ -509,7 +516,7 @@ Ada dua sumber hasil:
 | Sumber | Skenario | Environment | Cara |
 |--------|----------|-------------|------|
 | GitHub Actions | `smoke` (default) / `load` (pilih via *Run workflow*) | Postgres + data sintetis (`data.ci.csv`) | Otomatis tiap push ke `main` / PR |
-| Server internal | `stress`, `load`, `spike`, `soak` | DB UAT | Manual, lalu dipublikasikan lewat `published/before/` atau `published/after/` |
+| Server internal | `stress`, `load`, `spike`, `soak` | DB UAT | Manual, lalu dipublikasikan lewat `published/<fase>/` |
 
 Di GitHub Actions hanya `smoke`/`load` ringan sebagai deteksi regresi: runner hanya 2–4 core,
 k6 dan service berbagi CPU, dan datanya kecil — angka di sana tidak sebanding dengan server asli.
@@ -519,10 +526,14 @@ k6 dan service berbagi CPU, dan datanya kecil — angka di sana tidak sebanding 
 Hasil run internal disimpan per fase agar kondisi sebelum dan sesudah perbaikan
 (`docs/implementation-fixing-plan.md`) bisa dibandingkan di report yang sama:
 
-| Folder              | Label di Allure              | Isi                                        |
-|---------------------|------------------------------|--------------------------------------------|
-| `published/before/` | `Internal UAT · before fix`  | Run sebelum perbaikan isu §9 (baseline)    |
-| `published/after/`  | `Internal UAT · after fix`   | Run setelah perbaikan, skenario yang sama  |
+| Folder                           | Label di Allure                    | Isi                                            |
+|----------------------------------|------------------------------------|------------------------------------------------|
+| `published/before-fix/`          | `Internal UAT · before fix`        | Run sebelum perbaikan isu §9 (baseline)        |
+| `published/after-fix-9.4/`       | `Internal UAT · after fix 9.4`     | Setelah fix §9.4 (orjson), 1 worker            |
+| `published/after-fix-9.1-9.2/`   | `Internal UAT · after fix 9.1 9.2` | Setelah fix §9.1/§9.2, `APP_WORKERS=4`         |
+
+Folder fase baru cukup dibuat di `published/<nama-fase>/`; workflow memprosesnya otomatis
+(label = nama folder dengan `-` diganti spasi).
 
 ```bash
 # 1. jalankan stress test di server internal (lihat bagian 8)
@@ -530,14 +541,14 @@ k6 run tests/k6/report_mauto_stress.js -e SCENARIO=stress -e DATA_FILE=./data.cs
 
 # 2. (opsional) cek tampilan di Allure lokal
 python3 tests/k6/k6_to_allure.py tests/k6/results/summary_stress_<timestamp>.json \
-  --out tests/functional/allure-results --env "Internal UAT · before fix"
+  --out tests/functional/allure-results --env "Internal UAT · <fase>"
 
-# 3. salin summary ke folder fase (before = sebelum fix, after = sesudah fix), commit & push
-cp tests/k6/results/summary_stress_<timestamp>.{json,txt} tests/k6/published/before/
+# 3. salin summary ke folder fase, commit & push
+cp tests/k6/results/summary_stress_<timestamp>.{json,txt} tests/k6/published/<fase>/   # mis. before-fix, after-fix-9.4
 git add tests/k6/published && git commit -m "perf: hasil stress test <tanggal> (before fix)" && git push
 ```
 
-Workflow menyertakan kedua folder di setiap run. Di tiap folder hanya summary **terbaru per
+Workflow menyertakan semua folder fase di setiap run. Di tiap folder hanya summary **terbaru per
 skenario** yang ditampilkan (berdasarkan timestamp di nama file). Agar perbandingan adil, jalankan
 before dan after dengan skenario, data uji, jumlah worker, dan server yang sama, lalu catat
 konfigurasinya. Summary k6 hanya berisi metrik agregat; tetap periksa sebelum di-commit karena

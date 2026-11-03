@@ -100,11 +100,12 @@ jobs:
         run: |
           python3 tests/k6/k6_to_allure.py tests/k6/results \
             --out tests/functional/allure-results --env "CI (GitHub Actions)"
-          # hasil load/stress test internal (summary terbaru per skenario per fase)
-          for phase in before after; do
-            [ -d "tests/k6/published/$phase" ] || continue
-            python3 tests/k6/k6_to_allure.py "tests/k6/published/$phase" \
-              --out tests/functional/allure-results --env "Internal UAT · $phase fix"
+          # hasil load/stress test internal: satu folder per fase (before-fix, after-fix-9.4, ...),
+          # label Allure "Internal UAT · <fase>" ('-' diganti spasi); summary terbaru per skenario per fase
+          for dir in tests/k6/published/*/; do
+            phase=$(basename "$dir")
+            python3 tests/k6/k6_to_allure.py "$dir" \
+              --out tests/functional/allure-results --env "Internal UAT · ${phase//-/ }"
           done
 
       - name: Service log

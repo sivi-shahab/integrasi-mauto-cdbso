@@ -1,0 +1,39 @@
+======================================================================
+ k6 summary — POST /v1/report_mauto
+======================================================================
+ Scenario   : stress
+ Target     : http://127.0.0.1:8915/v1/report_mauto
+ Data rows  : 10 (./data.csv)
+ Limit      : 100
+ Selesai    : Tue Nov 03 2026 11:31:03 GMT+0000 (UTC)
+ Durasi     : 660.1s
+
+--- Checks -----------------------------------------------------------
+ ✗ status is 200          99.73% (79298 ✓ / 213 ✗)
+ ✗ body is JSON           99.73% (79298 ✓ / 213 ✗)
+ ✗ responseCode is 00     99.73% (79298 ✓ / 213 ✗)
+ ✗ data is array          99.73% (79298 ✓ / 213 ✗)
+
+--- Metrics ----------------------------------------------------------
+ http_reqs................... 79512 (120.46/s)
+ iterations.................. 79511 (120.45/s)
+ http_req_duration........... avg=540.40ms min=9.19ms med=416.53ms p(90)=1169.00ms p(95)=1412.72ms p(99)=1949.37ms max=3734.32ms
+ http_req_waiting............ avg=463.89ms min=8.52ms med=365.30ms p(90)=997.28ms p(95)=1186.39ms p(99)=1557.67ms max=3733.76ms
+ http_req_failed............. 0.27% (213 ✓ / 79299 ✗)
+ business_success............ 99.73% (79298 ✓ / 213 ✗)
+ checks...................... 99.73% (317192 ✓ / 852 ✗)
+ rows_returned............... avg=6.19 min=1.00 med=6.00 p(90)=8.00 p(95)=20.00 p(99)=20.00 max=20.00
+ non_success_response_code... 213 (0.32/s)
+ data_received............... 266.97 GB (414.14 MB/s)
+ data_sent................... 22.45 MB (34.82 kB/s)
+ vus_max..................... 300 (min=300 max=300)
+
+--- Thresholds -------------------------------------------------------
+ ✓ business_success rate>0.99
+ ✓ http_req_failed rate<0.01
+ ✗ http_req_duration p(95)<1000
+ ✓ http_req_duration p(99)<2000
+ ✓ checks rate>0.99
+
+ HASIL: GAGAL — ada threshold yang tidak terpenuhi
+======================================================================

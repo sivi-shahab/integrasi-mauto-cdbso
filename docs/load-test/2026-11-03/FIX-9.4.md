@@ -129,4 +129,4 @@ Per 30 detik: [`k6_stress_before_timeline.csv`](k6_stress_before_timeline.csv) v
 | [`k6_stress_after_fix94.txt`](k6_stress_after_fix94.txt) | Ringkasan k6 after |
 | [`k6_stress_after_fix94_timeline.csv`](k6_stress_after_fix94_timeline.csv) | RPS & latency per 30 detik |
 | [`resource_stress_after_fix94.csv`](resource_stress_after_fix94.csv) | CPU % & RSS service per 5 detik |
-| `tests/k6/published/after/summary_stress_20261103_110753.{json,txt}` | Allure TS-07 `stress · Internal UAT · after fix` |
+| `tests/k6/published/after-fix-9.4/summary_stress_20261103_110753.{json,txt}` | Allure TS-07 `stress · Internal UAT · after fix 9.4` |
